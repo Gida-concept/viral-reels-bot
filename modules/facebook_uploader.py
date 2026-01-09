@@ -12,13 +12,13 @@ class FacebookUploader:
     def upload_reel(self, video_path: str, title: str, hashtags: list, story: str = None):
         logger.info(f"Uploading to Facebook: {title}")
         try:
-            # Generate description from first 3 lines of story
-            description = self._generate_description_from_story(story, title)
+            # Generate trending hashtags
+            all_hashtags = self._generate_trending_hashtags(hashtags)
             
-            # Create caption with title, description, and hashtags
-            caption = f"{title}\n\n{description}\n\n" + " ".join([f"#{tag}" for tag in hashtags])
+            # Create caption: Title + Hashtags only (like Pocket FM)
+            caption = f"{title}\n\n" + " ".join([f"#{tag}" for tag in all_hashtags])
             
-            logger.info(f"Caption preview:\n{caption[:200]}...")
+            logger.info(f"Caption:\n{caption}")
             
             # Direct video upload
             upload_url = f"{self.graph_url}/{self.page_id}/videos"
@@ -55,68 +55,90 @@ class FacebookUploader:
             logger.error(f"Upload error: {e}")
             raise
     
-    def _generate_description_from_story(self, story: str, title: str):
-        """Use first 3 lines from the actual story as description"""
+    def _generate_trending_hashtags(self, category_tags: list):
+        """Generate trending hashtags like Pocket FM style"""
         
-        if not story or len(story) < 20:
-            return "A story that will surprise you.\nWatch to find out what happens.\nYou won't believe the ending!"
+        # Trending general hashtags (like Pocket FM uses)
+        trending_general = [
+            'viral', 'trending', 'foryou', 'foryoupage', 'fyp',
+            'explore', 'explorepage', 'reels', 'reelsinstagram', 
+            'instareels', 'viralreels', 'trendingreels', 'storytime',
+            'storytelling', 'stories', 'emotional', 'drama', 
+            'suspense', 'thriller', 'mustwatch', 'binge'
+        ]
         
-        # Split story into lines
-        lines = story.strip().split('\n')
+        # Content-specific hashtags
+        content_hashtags = [
+            'shortfilm', 'miniseries', 'episodic', 'serialstory',
+            'audiobook', 'audiostory', 'podcast', 'fiction',
+            'dramaticstory', 'realstory', 'truestory', 'lifestory'
+        ]
         
-        # Filter out empty lines
-        lines = [line.strip() for line in lines if line.strip()]
+        # Engagement hashtags
+        engagement_hashtags = [
+            'watchnow', 'dontstop', 'bingeworthy', 'addictive',
+            'cantmiss', 'mustsee', 'amazing', 'incredible',
+            'shocking', 'unbelievable', 'mindblowing', 'epic'
+        ]
         
-        if len(lines) >= 3:
-            # Use first 3 lines exactly as written
-            description = f"{lines[0]}\n{lines[1]}\n{lines[2]}"
-        elif len(lines) == 2:
-            # Use 2 lines + add emoji
-            description = f"{lines[0]}\n{lines[1]}\n🎬"
-        elif len(lines) == 1:
-            # Split first line into sentences
-            sentences = lines[0].split('.')
-            sentences = [s.strip() + '.' for s in sentences if s.strip()]
-            
-            if len(sentences) >= 3:
-                description = f"{sentences[0]}\n{sentences[1]}\n{sentences[2]}"
-            else:
-                description = f"{lines[0]}\n\nWatch now! 🔥"
-        else:
-            description = story[:150].strip()
+        # Combine: category tags + trending selection
+        import random
         
-        logger.info(f"Description: First 3 lines from story")
+        # Pick 8-10 trending hashtags randomly
+        selected_trending = random.sample(trending_general, 4)
+        selected_content = random.sample(content_hashtags, 3)
+        selected_engagement = random.sample(engagement_hashtags, 2)
         
-        return description
+        # Combine all hashtags (category + trending)
+        all_hashtags = (
+            category_tags[:2] +           # 2 category-specific
+            selected_trending +            # 4 trending general
+            selected_content +             # 3 content-specific
+            selected_engagement            # 2 engagement
+        )
+        
+        # Remove duplicates while preserving order
+        seen = set()
+        unique_hashtags = []
+        for tag in all_hashtags:
+            tag_lower = tag.lower()
+            if tag_lower not in seen:
+                seen.add(tag_lower)
+                unique_hashtags.append(tag)
+        
+        logger.info(f"Generated {len(unique_hashtags)} hashtags: {', '.join(unique_hashtags[:5])}...")
+        
+        return unique_hashtags[:15]  # Max 15 hashtags
     
     def generate_hashtags(self, category: str):
-        base_tags = ['reels', 'viral', 'story']
+        """Generate category-specific base hashtags"""
         category_map = {
-            'love': ['love', 'romance'], 
-            'help': ['help', 'kindness'],
-            'money': ['money', 'wealth'], 
+            'love': ['lovestory', 'romance'], 
+            'help': ['inspiration', 'kindness'],
+            'money': ['money', 'success'], 
             'partnership': ['partnership', 'business'],
             'dating': ['dating', 'relationships'],
-            'relationship': ['relationships', 'couple'],
-            'poor': ['inspiration', 'motivation'],
-            'disease': ['health', 'awareness'],
+            'relationship': ['relationships', 'love'],
+            'poor': ['motivation', 'inspiring'],
+            'disease': ['emotional', 'deep'],
             'brilliant': ['genius', 'smart'],
-            'student': ['student', 'education'],
+            'student': ['student', 'life'],
             'high school': ['highschool', 'teen'],
-            'middle school': ['middleschool', 'school'],
-            'kids': ['kids', 'family'],
-            'business': ['business', 'entrepreneur'], 
-            'christian': ['christian', 'faith'],
-            'religion': ['faith', 'spiritual'],
-            'bible': ['bible', 'faith'],
+            'middle school': ['school', 'youth'],
+            'kids': ['family', 'kids'],
+            'business': ['business', 'hustle'], 
+            'christian': ['faith', 'spiritual'],
+            'religion': ['spiritual', 'faith'],
+            'bible': ['faith', 'inspirational'],
             'crime': ['crime', 'thriller'], 
-            'action': ['action', 'adventure'],
-            'drug': ['awareness', 'reality'],
-            'mafia': ['mafia', 'thriller'],
-            'tech': ['tech', 'innovation'], 
-            'robotics': ['robotics', 'ai'],
-            'superpowers': ['superpowers', 'scifi'],
+            'action': ['action', 'intense'],
+            'drug': ['deep', 'reality'],
+            'mafia': ['mafia', 'crime'],
+            'tech': ['tech', 'future'], 
+            'robotics': ['scifi', 'future'],
+            'superpowers': ['fantasy', 'powers'],
             'fantasy': ['fantasy', 'magic']
         }
-        category_tags = category_map.get(category.lower(), [category.replace(' ', '')])
-        return (base_tags + category_tags)[:3]
+        
+        base_tags = category_map.get(category.lower(), [category.replace(' ', ''), 'story'])
+        return base_tags
