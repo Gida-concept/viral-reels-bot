@@ -9,12 +9,22 @@ class SubtitleGenerator:
     def generate_subtitles(self, audio_path: str, output_path: str, text: str):
         logger.info("Generating subtitles synchronized with voice speed")
         try:
+            # Validate inputs
+            if not text or len(text.strip()) == 0:
+                raise ValueError("Story text is empty")
+            
             # Get exact audio duration
             duration = self._get_audio_duration(audio_path)
+            
+            if duration <= 0:
+                raise ValueError(f"Invalid audio duration: {duration}s")
             
             # Get word timestamps from audio analysis
             words = text.split()
             total_words = len(words)
+            
+            if total_words == 0:
+                raise ValueError("No words found in story text")
             
             # Calculate exact timing based on audio duration
             seconds_per_word = duration / total_words
