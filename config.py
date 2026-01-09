@@ -34,10 +34,10 @@ class Config:
     STATE_FILE = os.path.join(DATA_DIR, 'state.json')
     
     # Settings
-    VOICE_VOLUME_BOOST = 1.10
-    MUSIC_VOLUME = 0.20
+    VOICE_VOLUME_BOOST = 2.10
+    MUSIC_VOLUME = 0.60
     OUTPUT_RESOLUTION = (360, 640)
-    SUBTITLE_FONT_SIZE = 10
+    SUBTITLE_FONT_SIZE = 24
     TTS_VOICE = 'en-US-AndrewNeural'
     RUN_INTERVAL_HOURS = 3
     
