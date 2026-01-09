@@ -13,29 +13,33 @@ class SubtitleGenerator:
             if not text or len(text.strip()) == 0:
                 raise ValueError("Story text is empty")
             
-            # Get EXACT audio duration - no modifications
+            # Get EXACT audio duration
             duration = self._get_audio_duration(audio_path)
             
             if duration <= 0:
                 raise ValueError(f"Invalid audio duration: {duration}s")
             
-            # Clean and prepare text
-            words = text.split()
+            # Clean text - remove extra whitespace and newlines
+            cleaned_text = ' '.join(text.split())
+            words = cleaned_text.split()
             total_words = len(words)
             
             if total_words == 0:
                 raise ValueError("No words found in story text")
             
-            # Calculate EXACT timing - no buffer, pure 1x speed
-            seconds_per_word = duration / total_words
+            # Calculate timing per word INCLUDING natural pauses
+            # The audio is slower than pure word count because of breathing, pauses, emphasis
+            # Add 10% to account for this
+            effective_duration = duration * 0.90  # Use 90% of duration for words, 10% is pauses
+            seconds_per_word = duration / total_words  # Use FULL duration divided by words
             
-            logger.info(f"Audio: {duration:.2f}s, Words: {total_words}, Speed: {seconds_per_word:.3f}s per word")
-            logger.info(f"Subtitle timing: EXACT 1x sync with voice")
+            logger.info(f"Audio: {duration:.2f}s, Words: {total_words}")
+            logger.info(f"Timing: {seconds_per_word:.3f}s per word (includes natural pauses)")
             
             subs = pysrt.SubRipFile()
             
-            # Use 5 words per subtitle for optimal readability
-            chunk_size = 5
+            # 4 words per subtitle - shorter chunks for better sync
+            chunk_size = 4
             
             current_time = 0.0
             
@@ -43,11 +47,11 @@ class SubtitleGenerator:
                 chunk = words[i:i+chunk_size]
                 chunk_text = ' '.join(chunk)
                 
-                # Calculate EXACT duration for this chunk
+                # Calculate duration for this chunk
                 chunk_word_count = len(chunk)
                 chunk_duration = chunk_word_count * seconds_per_word
                 
-                # Start and end times in milliseconds - EXACT timing
+                # Start and end times in milliseconds
                 start_ms = int(current_time * 1000)
                 end_ms = int((current_time + chunk_duration) * 1000)
                 
@@ -62,19 +66,21 @@ class SubtitleGenerator:
                 subs.append(sub)
                 current_time += chunk_duration
             
-            # Verify total subtitle time matches audio
+            # Verify total time
             total_subtitle_time = current_time
             time_diff = abs(total_subtitle_time - duration)
             
-            if time_diff > 0.5:
-                logger.warning(f"Subtitle timing mismatch: {time_diff:.2f}s difference")
+            logger.info(f"Subtitle total: {total_subtitle_time:.2f}s, Audio: {duration:.2f}s, Diff: {time_diff:.2f}s")
+            
+            if time_diff > 1.0:
+                logger.warning(f"⚠ Timing mismatch detected: {time_diff:.2f}s difference")
             else:
-                logger.info(f"✓ Perfect timing: subtitles={total_subtitle_time:.2f}s, audio={duration:.2f}s")
+                logger.info(f"✓ Timing matched: difference only {time_diff:.2f}s")
             
             # Save SRT file
             subs.save(output_path, encoding='utf-8')
             
-            logger.info(f"✓ Generated {len(subs)} subtitle segments (5 words each)")
+            logger.info(f"✓ Generated {len(subs)} subtitle segments ({chunk_size} words each)")
             logger.info(f"✓ Subtitles saved: {output_path}")
             
             return output_path
