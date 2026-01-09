@@ -43,7 +43,7 @@ class ViralReelsBot:
         self.voice_generator = VoiceGenerator(Config.TTS_VOICE)
         self.subtitle_generator = SubtitleGenerator()
         self.video_manager = VideoManager(Config.VIDEO_URLS)
-        self.music_downloader = MusicDownloader(Config.PIXABAY_API_KEY)
+       self.music_downloader = MusicDownloader(Config.PIXABAY_API_KEY, Config.FALLBACK_MUSIC_URL)
         self.video_assembler = VideoAssembler(Config)
         self.facebook_uploader = FacebookUploader(
             Config.FACEBOOK_ACCESS_TOKEN,
@@ -180,4 +180,5 @@ def main():
 
 
 if __name__ == "__main__":
+
     main()
