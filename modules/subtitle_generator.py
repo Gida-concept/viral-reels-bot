@@ -19,22 +19,24 @@ class SubtitleGenerator:
             if duration <= 0:
                 raise ValueError(f"Invalid audio duration: {duration}s")
             
-            # Get word timestamps from audio analysis
+            # Clean and prepare text
             words = text.split()
             total_words = len(words)
             
             if total_words == 0:
                 raise ValueError("No words found in story text")
             
-            # Calculate exact timing based on audio duration
-            seconds_per_word = duration / total_words
+            # Calculate timing with slight delay for natural speech patterns
+            # Add 15% buffer for natural pauses and breathing
+            adjusted_duration = duration * 1.15
+            seconds_per_word = adjusted_duration / total_words
             
-            logger.info(f"Audio: {duration:.2f}s, Words: {total_words}, Speed: {seconds_per_word:.3f}s per word")
+            logger.info(f"Audio: {duration:.2f}s, Words: {total_words}, Adjusted speed: {seconds_per_word:.3f}s per word")
             
             subs = pysrt.SubRipFile()
             
-            # Optimal chunk size for readability (3-6 words per subtitle)
-            chunk_size = 4
+            # Larger chunk size for slower subtitle changes
+            chunk_size = 6  # Increased from 4 to 6 words
             
             current_time = 0.0
             
