@@ -36,8 +36,8 @@ class Config:
     STATE_FILE = os.path.join(DATA_DIR, 'state.json')
     
     # Settings
-    VOICE_VOLUME_BOOST = 1.10
-    MUSIC_VOLUME = 0.20
+    VOICE_VOLUME_BOOST = 2.10
+    MUSIC_VOLUME = 0.50
     OUTPUT_RESOLUTION = (360, 640)
     SUBTITLE_FONT_SIZE = 24
     TTS_VOICE = 'en-US-AndrewNeural'
@@ -70,3 +70,4 @@ class Config:
         logger.info(f"  Videos: {len(cls.VIDEO_URLS)} URLs")
         logger.info(f"  Categories: {len(cls.CATEGORIES)}")
         logger.info(f"  Subtitle size: {cls.SUBTITLE_FONT_SIZE}px")
+
