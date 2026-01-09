@@ -8,32 +8,40 @@ class VideoAssembler:
     def __init__(self, config):
         self.config = config
     
-    def assemble_video(self, video_path, audio_path, music_path, subtitle_path, output_path):
-        logger.info("Assembling video with synchronized timing")
+    def assemble_video(self, video_path, audio_path, music_path, subtitle_path, output_path, title=""):
+        logger.info("Assembling video with static title caption")
         
         audio_duration = self._get_duration(audio_path)
         video_duration = self._get_duration(video_path)
         
         logger.info(f"Audio: {audio_duration:.2f}s, Video: {video_duration:.2f}s")
+        logger.info(f"Title caption: {title}")
         
         width, height = self.config.OUTPUT_RESOLUTION
-        subtitle_path_escaped = subtitle_path.replace('\\', '/').replace(':', '\\:')
+        
+        # Escape title for FFmpeg drawtext (handle special characters)
+        title_escaped = title.replace("'", "\\'").replace(":", "\\:").replace("%", "\\%").replace(",", "\\,")
         
         # Check if music has audio
         has_music_audio = self._has_audio_stream(music_path)
         
         if has_music_audio:
-            # WITH MUSIC - Simpler looping approach
+            # WITH MUSIC - Static title caption instead of subtitles
             filter_complex = (
                 # Scale and crop video
                 f"[0:v]scale={width}:{height}:force_original_aspect_ratio=increase,"
                 f"crop={width}:{height}[v_crop];"
                 
-                # Add subtitles
-                f"[v_crop]subtitles={subtitle_path_escaped}:"
-                f"force_style='FontName=Arial,FontSize={self.config.SUBTITLE_FONT_SIZE},"
-                f"Bold=1,PrimaryColour=&H00FFFFFF,OutlineColour=&H00000000,"
-                f"BackColour=&H80000000,Outline=2,Shadow=1,MarginV=30,Alignment=2'[v];"
+                # Add static title caption (stays throughout video)
+                f"[v_crop]drawtext="
+                f"text='{title_escaped}':"
+                f"fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf:"
+                f"fontsize={self.config.SUBTITLE_FONT_SIZE}:"
+                f"fontcolor=white:"
+                f"borderw=2:"
+                f"bordercolor=black:"
+                f"x=(w-text_w)/2:"
+                f"y=h-{self.config.SUBTITLE_FONT_SIZE*3}[v];"
                 
                 # Voice audio with volume boost
                 f"[1:a]volume={self.config.VOICE_VOLUME_BOOST}[voice];"
@@ -66,18 +74,23 @@ class VideoAssembler:
                 output_path
             ]
         else:
-            # WITHOUT MUSIC - Voice only
+            # WITHOUT MUSIC - Static title caption instead of subtitles
             logger.warning("Music has no audio, using voice only")
             filter_complex = (
                 # Scale and crop video
                 f"[0:v]scale={width}:{height}:force_original_aspect_ratio=increase,"
                 f"crop={width}:{height}[v_crop];"
                 
-                # Add subtitles
-                f"[v_crop]subtitles={subtitle_path_escaped}:"
-                f"force_style='FontName=Arial,FontSize={self.config.SUBTITLE_FONT_SIZE},"
-                f"Bold=1,PrimaryColour=&H00FFFFFF,OutlineColour=&H00000000,"
-                f"BackColour=&H80000000,Outline=2,Shadow=1,MarginV=30,Alignment=2'[v];"
+                # Add static title caption (stays throughout video)
+                f"[v_crop]drawtext="
+                f"text='{title_escaped}':"
+                f"fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf:"
+                f"fontsize={self.config.SUBTITLE_FONT_SIZE}:"
+                f"fontcolor=white:"
+                f"borderw=2:"
+                f"bordercolor=black:"
+                f"x=(w-text_w)/2:"
+                f"y=h-{self.config.SUBTITLE_FONT_SIZE*3}[v];"
                 
                 # Voice audio with volume boost
                 f"[1:a]volume={self.config.VOICE_VOLUME_BOOST}[a]"
@@ -104,7 +117,7 @@ class VideoAssembler:
             ]
         
         try:
-            logger.info("Running FFmpeg with looped video and audio...")
+            logger.info("Running FFmpeg with static title caption...")
             result = subprocess.run(cmd, capture_output=True, text=True, check=True)
             
             # Verify output
