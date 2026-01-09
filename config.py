@@ -38,9 +38,9 @@ class Config:
     
     # Settings
     VOICE_VOLUME_BOOST = 1.3
-    MUSIC_VOLUME = 0.40
+    MUSIC_VOLUME = 0.20
     OUTPUT_RESOLUTION = (360, 640)
-    SUBTITLE_FONT_SIZE = 24
+    SUBTITLE_FONT_SIZE = 20
     TTS_VOICE = 'en-US-AndrewNeural'
     RUN_INTERVAL_HOURS = 3
     
@@ -71,3 +71,4 @@ class Config:
         logger.info(f"  Videos: {len(cls.VIDEO_URLS)} URLs")
         logger.info(f"  Categories: {len(cls.CATEGORIES)}")
         logger.info(f"  Subtitle size: {cls.SUBTITLE_FONT_SIZE}px")
+
