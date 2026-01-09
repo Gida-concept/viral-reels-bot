@@ -1,5 +1,7 @@
 import requests
 import random
+import subprocess
+import json
 from utils.logger import setup_logger
 
 logger = setup_logger()
@@ -8,16 +10,22 @@ class MusicDownloader:
     def __init__(self, api_key: str, fallback_url: str = None):
         self.api_key = api_key
         self.fallback_url = fallback_url
-        self.base_url = "https://pixabay.com/api/videos/"
+        self.base_url = "https://pixabay.com/api/music/"
     
     def download_music(self, output_path: str):
         logger.info("Downloading background music")
         
         # Try Pixabay first
         try:
-            return self._download_from_pixabay(output_path)
+            pixabay_path = self._download_from_pixabay(output_path)
+            # Check if downloaded file has audio
+            if self._has_audio_stream(pixabay_path):
+                return pixabay_path
+            else:
+                logger.warning("Pixabay file has no audio stream, using fallback...")
+                raise ValueError("No audio in Pixabay file")
         except Exception as e:
-            logger.warning(f"Pixabay download failed: {e}")
+            logger.warning(f"Pixabay download issue: {e}")
             
             # Use fallback music
             if self.fallback_url:
@@ -60,3 +68,21 @@ class MusicDownloader:
         except Exception as e:
             logger.error(f"Error downloading music: {e}")
             raise
+    
+    def _has_audio_stream(self, file_path: str):
+        """Check if file has an audio stream"""
+        try:
+            cmd = [
+                'ffprobe', '-v', 'error',
+                '-select_streams', 'a:0',
+                '-show_entries', 'stream=codec_type',
+                '-of', 'json',
+                file_path
+            ]
+            result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+            data = json.loads(result.stdout)
+            has_audio = len(data.get('streams', [])) > 0
+            logger.info(f"Audio check for {file_path}: {has_audio}")
+            return has_audio
+        except:
+            return False
