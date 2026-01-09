@@ -10,100 +10,100 @@ class VideoAssembler:
     
     def assemble_video(self, video_path, audio_path, music_path, subtitle_path, output_path):
         logger.info("Assembling video with synchronized timing")
-        try:
-            audio_duration = self._get_duration(audio_path)
-            video_duration = self._get_duration(video_path)
-            
-            logger.info(f"Audio: {audio_duration:.2f}s, Video: {video_duration:.2f}s")
-            
-            width, height = self.config.OUTPUT_RESOLUTION
-            subtitle_path_escaped = subtitle_path.replace('\\', '/').replace(':', '\\:')
-            
-            # Check if music has audio
-            has_music_audio = self._has_audio_stream(music_path)
-            
+        
+        audio_duration = self._get_duration(audio_path)
+        video_duration = self._get_duration(video_path)
+        
+        logger.info(f"Audio: {audio_duration:.2f}s, Video: {video_duration:.2f}s")
+        
+        width, height = self.config.OUTPUT_RESOLUTION
+        subtitle_path_escaped = subtitle_path.replace('\\', '/').replace(':', '\\:')
+        
+        # Check if music has audio
+        has_music_audio = self._has_audio_stream(music_path)
+        
         if has_music_audio:
-                # WITH MUSIC - Simpler looping approach
-                filter_complex = (
-                    # Scale and crop video
-                    f"[0:v]scale={width}:{height}:force_original_aspect_ratio=increase,"
-                    f"crop={width}:{height}[v_crop];"
-                    
-                    # Add subtitles
-                    f"[v_crop]subtitles={subtitle_path_escaped}:"
-                    f"force_style='FontName=Arial,FontSize={self.config.SUBTITLE_FONT_SIZE},"
-                    f"Bold=1,PrimaryColour=&H00FFFFFF,OutlineColour=&H00000000,"
-                    f"BackColour=&H80000000,Outline=2,Shadow=1,MarginV=30,Alignment=2'[v];"
-                    
-                    # Voice audio with volume boost
-                    f"[1:a]volume={self.config.VOICE_VOLUME_BOOST}[voice];"
-                    
-                    # Music audio: loop and adjust volume
-                    f"[2:a]aloop=loop=-1:size=2e+09,volume={self.config.MUSIC_VOLUME}[music];"
-                    
-                    # Mix voice and music
-                    f"[voice][music]amix=inputs=2:duration=first:dropout_transition=2[a]"
-                )
+            # WITH MUSIC - Simpler looping approach
+            filter_complex = (
+                # Scale and crop video
+                f"[0:v]scale={width}:{height}:force_original_aspect_ratio=increase,"
+                f"crop={width}:{height}[v_crop];"
                 
-                cmd = [
-                    'ffmpeg', '-y',
-                    '-stream_loop', '-1',  # Loop video input
-                    '-i', video_path,
-                    '-i', audio_path,
-                    '-i', music_path,
-                    '-filter_complex', filter_complex,
-                    '-map', '[v]',
-                    '-map', '[a]',
-                    '-t', str(audio_duration),
-                    '-c:v', 'libx264',
-                    '-preset', 'medium',
-                    '-crf', '23',
-                    '-pix_fmt', 'yuv420p',
-                    '-c:a', 'aac',
-                    '-b:a', '128k',
-                    '-ar', '44100',
-                    '-movflags', '+faststart',
-                    output_path
-                ]
-                            
-            else:
-                # WITHOUT MUSIC - Voice only
-                logger.warning("Music has no audio, using voice only")
-                filter_complex = (
-                    # Scale and crop video
-                    f"[0:v]scale={width}:{height}:force_original_aspect_ratio=increase,"
-                    f"crop={width}:{height}[v_crop];"
-                    
-                    # Add subtitles
-                    f"[v_crop]subtitles={subtitle_path_escaped}:"
-                    f"force_style='FontName=Arial,FontSize={self.config.SUBTITLE_FONT_SIZE},"
-                    f"Bold=1,PrimaryColour=&H00FFFFFF,OutlineColour=&H00000000,"
-                    f"BackColour=&H80000000,Outline=2,Shadow=1,MarginV=30,Alignment=2'[v];"
-                    
-                    # Voice audio with volume boost
-                    f"[1:a]volume={self.config.VOICE_VOLUME_BOOST}[a]"
-                )
+                # Add subtitles
+                f"[v_crop]subtitles={subtitle_path_escaped}:"
+                f"force_style='FontName=Arial,FontSize={self.config.SUBTITLE_FONT_SIZE},"
+                f"Bold=1,PrimaryColour=&H00FFFFFF,OutlineColour=&H00000000,"
+                f"BackColour=&H80000000,Outline=2,Shadow=1,MarginV=30,Alignment=2'[v];"
                 
-                cmd = [
-                    'ffmpeg', '-y',
-                    '-stream_loop', '-1',  # Loop video input
-                    '-i', video_path,
-                    '-i', audio_path,
-                    '-filter_complex', filter_complex,
-                    '-map', '[v]',
-                    '-map', '[a]',
-                    '-t', str(audio_duration),
-                    '-c:v', 'libx264',
-                    '-preset', 'medium',
-                    '-crf', '23',
-                    '-pix_fmt', 'yuv420p',
-                    '-c:a', 'aac',
-                    '-b:a', '128k',
-                    '-ar', '44100',
-                    '-movflags', '+faststart',
-                    output_path
-                ]
+                # Voice audio with volume boost
+                f"[1:a]volume={self.config.VOICE_VOLUME_BOOST}[voice];"
+                
+                # Music audio: loop and adjust volume
+                f"[2:a]aloop=loop=-1:size=2e+09,volume={self.config.MUSIC_VOLUME}[music];"
+                
+                # Mix voice and music
+                f"[voice][music]amix=inputs=2:duration=first:dropout_transition=2[a]"
+            )
             
+            cmd = [
+                'ffmpeg', '-y',
+                '-stream_loop', '-1',  # Loop video input
+                '-i', video_path,
+                '-i', audio_path,
+                '-i', music_path,
+                '-filter_complex', filter_complex,
+                '-map', '[v]',
+                '-map', '[a]',
+                '-t', str(audio_duration),
+                '-c:v', 'libx264',
+                '-preset', 'medium',
+                '-crf', '23',
+                '-pix_fmt', 'yuv420p',
+                '-c:a', 'aac',
+                '-b:a', '128k',
+                '-ar', '44100',
+                '-movflags', '+faststart',
+                output_path
+            ]
+        else:
+            # WITHOUT MUSIC - Voice only
+            logger.warning("Music has no audio, using voice only")
+            filter_complex = (
+                # Scale and crop video
+                f"[0:v]scale={width}:{height}:force_original_aspect_ratio=increase,"
+                f"crop={width}:{height}[v_crop];"
+                
+                # Add subtitles
+                f"[v_crop]subtitles={subtitle_path_escaped}:"
+                f"force_style='FontName=Arial,FontSize={self.config.SUBTITLE_FONT_SIZE},"
+                f"Bold=1,PrimaryColour=&H00FFFFFF,OutlineColour=&H00000000,"
+                f"BackColour=&H80000000,Outline=2,Shadow=1,MarginV=30,Alignment=2'[v];"
+                
+                # Voice audio with volume boost
+                f"[1:a]volume={self.config.VOICE_VOLUME_BOOST}[a]"
+            )
+            
+            cmd = [
+                'ffmpeg', '-y',
+                '-stream_loop', '-1',  # Loop video input
+                '-i', video_path,
+                '-i', audio_path,
+                '-filter_complex', filter_complex,
+                '-map', '[v]',
+                '-map', '[a]',
+                '-t', str(audio_duration),
+                '-c:v', 'libx264',
+                '-preset', 'medium',
+                '-crf', '23',
+                '-pix_fmt', 'yuv420p',
+                '-c:a', 'aac',
+                '-b:a', '128k',
+                '-ar', '44100',
+                '-movflags', '+faststart',
+                output_path
+            ]
+        
+        try:
             logger.info("Running FFmpeg with looped video and audio...")
             result = subprocess.run(cmd, capture_output=True, text=True, check=True)
             
@@ -146,4 +146,3 @@ class VideoAssembler:
             return len(data.get('streams', [])) > 0
         except:
             return False
-
