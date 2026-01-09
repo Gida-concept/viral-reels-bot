@@ -13,13 +13,13 @@ class Config:
     FACEBOOK_PAGE_ID = os.getenv('FACEBOOK_PAGE_ID')
     
     # Categories
-  CATEGORIES = [
-    'love', 'help', 'money', 'partnership', 'dating', 'relationship',
-    'poor', 'disease', 'brilliant', 'student', 'high school', 'middle school',
-    'kids', 'business', 'christian', 'religion', 'bible', 'crime', 'action',
-    'drug', 'mafia', 'tech', 'robotics', 'superpowers', 'fantasy', 
-    'horror', 'fear', 'halloween'
-]
+    CATEGORIES = [
+        'love', 'help', 'money', 'partnership', 'dating', 'relationship',
+        'poor', 'disease', 'brilliant', 'student', 'high school', 'middle school',
+        'kids', 'business', 'christian', 'religion', 'bible', 'crime', 'action',
+        'drug', 'mafia', 'tech', 'robotics', 'superpowers', 'fantasy',
+        'horror', 'fear', 'halloween'
+    ]
     
     # Video URLs
     VIDEO_URLS = [
@@ -37,10 +37,10 @@ class Config:
     STATE_FILE = os.path.join(DATA_DIR, 'state.json')
     
     # Settings
-    VOICE_VOLUME_BOOST = 2.10
-    MUSIC_VOLUME = 0.30
+    VOICE_VOLUME_BOOST = 1.3
+    MUSIC_VOLUME = 0.40
     OUTPUT_RESOLUTION = (360, 640)
-    SUBTITLE_FONT_SIZE = 23
+    SUBTITLE_FONT_SIZE = 24
     TTS_VOICE = 'en-US-AndrewNeural'
     RUN_INTERVAL_HOURS = 3
     
@@ -71,5 +71,3 @@ class Config:
         logger.info(f"  Videos: {len(cls.VIDEO_URLS)} URLs")
         logger.info(f"  Categories: {len(cls.CATEGORIES)}")
         logger.info(f"  Subtitle size: {cls.SUBTITLE_FONT_SIZE}px")
-
-
