@@ -10,7 +10,7 @@ class MusicDownloader:
     def __init__(self, api_key: str, fallback_url: str = None):
         self.api_key = api_key
         self.fallback_url = fallback_url
-        self.base_url = "https://pixabay.com/api/music/"
+        self.base_url = "https://pixabay.com/api/videos/"
     
     def download_music(self, output_path: str):
         logger.info("Downloading background music")
@@ -86,3 +86,4 @@ class MusicDownloader:
             return has_audio
         except:
             return False
+
