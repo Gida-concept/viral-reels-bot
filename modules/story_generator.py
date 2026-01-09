@@ -11,10 +11,10 @@ class StoryGenerator:
         self.used_openings = []
     
     def generate_story(self, category: str):
-        logger.info(f"Generating SCENE-BASED story for: {category}")
+        logger.info(f"Generating BULLETPROOF SCENE-BASED story for: {category}")
         
         opening_style = self._get_unique_opening_style()
-        prompt = self._create_scene_based_prompt(category, opening_style)
+        prompt = self._create_bulletproof_prompt(category, opening_style)
         
         try:
             response = self.client.chat.completions.create(
@@ -26,7 +26,7 @@ class StoryGenerator:
 Your stories are CINEMATIC SEQUENCES - each scene flows naturally into the next, like watching a movie.
 
 YOUR STYLE:
-- CONSISTENT CHARACTERS with clear motivations
+- CONSISTENT CHARACTERS with clear motivations and FIXED NAMES
 - NO UNNECESSARY TWISTS - let the natural story unfold
 - SCENE-BY-SCENE progression (Scene 1, Scene 2, Scene 3...)
 - Each scene has clear BEGINNING, MIDDLE, END
@@ -35,6 +35,7 @@ YOUR STYLE:
 - Characters stay TRUE to who they are
 - Natural cause and effect - no random revelations
 - Emotional truth over plot gymnastics
+- BALANCED dialogue (2-3 powerful exchanges, not too much)
 
 SCENE STRUCTURE:
 - Establish WHERE we are (location, atmosphere)
@@ -46,8 +47,8 @@ SCENE STRUCTURE:
 You write like: Linear storytelling masters - straightforward but deeply emotional.
 Think: This Is Us, The Pursuit of Happyness, Stand By Me - stories that unfold naturally.
 
-BANNED: Random plot twists, character inconsistency, confusing revelations, deus ex machina
-REQUIRED: Clear scenes, consistent characters, natural progression, emotional depth, visual storytelling"""
+BANNED: Random plot twists, character inconsistency, confusing revelations, deus ex machina, purple prose, over-description, name changes mid-story
+REQUIRED: Clear scenes, consistent character names, natural progression, emotional depth, visual storytelling, realistic dialogue, balanced pacing"""
                     },
                     {
                         "role": "user", 
@@ -63,8 +64,7 @@ REQUIRED: Clear scenes, consistent characters, natural progression, emotional de
             )
             
             result = self._parse_response(response.choices[0].message.content)
-            logger.info(f"Scene-based story generated: {result['title']}")
-            logger.info(f"Story length: {len(result['story'])} characters")
+            logger.info(f"Bulletproof story generated: {result['title']}")
             return result
         except Exception as e:
             logger.error(f"Error generating story: {e}")
@@ -109,8 +109,8 @@ REQUIRED: Clear scenes, consistent characters, natural progression, emotional de
         
         return chosen
     
-    def _create_scene_based_prompt(self, category: str, opening_style: str):
-        """Create prompts for natural, scene-based storytelling"""
+    def _create_bulletproof_prompt(self, category: str, opening_style: str):
+        """Create prompts for bulletproof, scene-based storytelling"""
         
         scene_concepts = {
             'love': [
@@ -291,7 +291,7 @@ REQUIRED: Clear scenes, consistent characters, natural progression, emotional de
         
         chosen_concept = random.choice(concepts)
         
-        return f"""Write a SCENE-BY-SCENE story - like watching a movie unfold naturally.
+        return f"""Write a BULLETPROOF SCENE-BY-SCENE story - like watching a movie unfold naturally.
 
 🎬 CONCEPT: {chosen_concept}
 
@@ -302,48 +302,59 @@ REQUIRED: Clear scenes, consistent characters, natural progression, emotional de
 
 Tell this story in CLEAR SCENES - like a film script brought to life.
 
-SCENE 1 (Opening):
+SCENE 1 (Opening - 20-25% of story):
 - WHERE: Specific location with atmospheric details
-- WHO: Introduce main character through action/environment
+- WHO: Introduce main character WITH A NAME - use that EXACT name throughout
 - WHAT: Establish normal world or inciting incident
 - MOOD: Set emotional tone through sensory details
+- EMOTIONAL BEAT: Curiosity / Intrigue / Unease (depending on genre)
 - TRANSITION: Natural flow into Scene 2
 
-SCENE 2-3 (Development):
-- BUILD on Scene 1 naturally
+SCENE 2-3 (Development - 40-45% of story):
+- BUILD on Scene 1 naturally (moderate pacing)
 - SHOW character responding to situation
-- INTRODUCE other people/obstacles organically
+- INTRODUCE other people/obstacles organically (name them and keep names consistent)
 - DEEPEN our understanding through behavior
+- INCLUDE 1-2 dialogue exchanges that feel REAL (fragments, "um", interruptions, pauses)
+- EMOTIONAL BEAT: Connection / Investment / Growing tension
 - EACH SCENE moves story forward clearly
 
-SCENE 4-5 (Rising Tension):
-- COMPLICATIONS arise naturally from choices
+SCENE 4-5 (Rising Tension - 25-30% of story):
+- COMPLICATIONS arise naturally from choices (faster pacing)
 - STAKES become personal and clear
 - CHARACTER pushed to respond, decide, act
 - EMOTION builds through specific moments
-- MAINTAIN consistent character motivation
+- MAINTAIN consistent character motivation and names
+- INCLUDE 1 powerful dialogue moment
+- EMOTIONAL BEAT: Anxiety / Hope / Fear (escalating)
 
-SCENE 6-7 (Climax):
+SCENE 6-7 (Climax - Peak intensity):
 - CONFRONTATION or peak emotional moment
 - CHARACTER acts on everything we've learned
 - CONSEQUENCES play out in real-time
 - NO sudden twists - natural culmination
 - RESOLUTION earned through character journey
+- EMOTIONAL BEAT: Peak emotion - catharsis moment
 
-SCENE 8 (Closing):
-- AFTERMATH - what changed, what remains
+SCENE 8 (Closing - 10-15% of story):
+- AFTERMATH - what changed, what remains (slow down, breathe)
 - CHARACTER transformed or clarified
 - FINAL IMAGE that resonates
 - EMOTIONAL landing that feels complete
 - NO twist ending - just truth
+- EMOTIONAL BEAT: Resolution / Reflection / Lingering feeling
 
-🎭 SCENE-WRITING RULES:
+🎭 BULLETPROOF STORYTELLING RULES:
 
 CONSISTENT CHARACTERS:
+- Name the protagonist ONCE (e.g., "Sarah", "Marcus") and use that EXACT name throughout
+- Secondary characters get consistent names too
+- NO "the man", "the woman" after you've named them
+- Use pronouns correctly and consistently
 - They act from clear motivations
 - Behavior matches personality established
 - Growth is gradual, earned
-- No sudden personality changes
+- NO sudden personality changes
 - Reactions make sense for who they are
 
 NO UNNECESSARY TWISTS:
@@ -353,12 +364,23 @@ NO UNNECESSARY TWISTS:
 - Ending flows from everything before
 - Truth over shock value
 
+DIALOGUE BALANCE:
+- Include 2-3 powerful dialogue exchanges total (not too much, not too little)
+- Dialogue should feel REAL - how people actually talk:
+  * Interruptions: "I just—" "No, listen—"
+  * Fragments: "Can't believe it." "Why would you—"
+  * Filler words: "Um", "like", "you know"
+  * Pauses: Use "..." for trailing off, breath
+- Use silence and pauses between dialogue meaningfully
+- Dialogue reveals character, not just exposition
+- People talk AROUND feelings, not directly stating them
+
 VISUAL STORYTELLING:
 - SHOW through action, not exposition
 - Describe what camera would see
-- Use dialogue sparingly, make it real
-- Environment tells story
+- Use environment to tell story
 - Physical acting reveals emotion
+- Choose details that MATTER - not everything
 
 SCENE TRANSITIONS:
 - Flow naturally like film cuts
@@ -373,6 +395,7 @@ SENSORY IMMERSION:
 - What can be FELT (temperature, texture)?
 - What SMELLS exist?
 - Ground us in physical reality
+- Don't overdo it - select meaningful details
 
 EMOTIONAL CLARITY:
 - We feel what character feels
@@ -382,30 +405,36 @@ EMOTIONAL CLARITY:
 - Pay off emotional setup
 
 REALISTIC PACING:
-- Slow down important moments
-- Speed through transitions
-- Let scenes breathe when needed
-- Build tension naturally
-- Release earned, not rushed
+- Scene 1-2: SETUP (slower, establish world) - 20-25%
+- Scene 3-5: BUILD (moderate pace, complications) - 40-45%
+- Scene 6-7: CLIMAX (faster, intense) - 25-30%
+- Scene 8: RESOLUTION (slow down, breathe) - 10-15%
 
-❌ FORBIDDEN:
-- Random plot twists
+❌ ABSOLUTELY FORBIDDEN:
+- Random plot twists that invalidate earlier story
 - Character acting out of character
+- Changing character names mid-story
+- Using "the man"/"the woman" after naming them
 - Deus ex machina solutions
+- Purple prose (overly flowery language)
+- Describing every single detail
+- Over-explaining emotions we already feel
+- Repetitive sentence structures
 - Confusing timeline without reason
-- Twists that invalidate earlier story
-- Unreliable narrator tricks
 - Dream/hallucination cop-outs
+- Unreliable narrator tricks
 
-✅ REQUIRED:
-- 5-8 distinct scenes clearly marked
-- Consistent protagonist throughout
+✅ MANDATORY REQUIREMENTS:
+- 5-8 distinct scenes clearly marked ("Scene 1:", "Scene 2:", etc.)
+- Consistent protagonist with FIXED NAME throughout
 - Natural cause-and-effect progression
 - Clear location/time for each scene
 - Emotional journey that makes sense
 - Character-driven, not plot-driven
 - Ending that feels earned and true
-- 1000-1600 words total
+- 1000-1600 words total (TARGET: 1200-1400 for optimal 5-7 minutes)
+- 2-3 dialogue exchanges total
+- Balanced pacing across scenes
 
 🎨 TONE: Grounded. Real. Emotional. Cinematic. True.
 
@@ -413,9 +442,16 @@ Format EXACTLY as:
 Title: [Clear, compelling title]
 
 Story:
-[Write in SCENES - mark each clearly: "Scene 1:", "Scene 2:", etc.]
+Scene 1:
+[Scene content]
+
+Scene 2:
+[Scene content]
+
+[Continue with clear scene markers]
 
 This is a FILM told through words. Make us SEE it. Make us FEEL it. Keep it REAL.
+Name characters and keep those names. Balance description with dialogue. Let scenes flow.
 
 BEGIN:"""
     
@@ -449,6 +485,26 @@ BEGIN:"""
         if not story:
             story = response.replace('Title:', '').replace('Story:', '').strip()
         
-        logger.info(f"Parsed - Title: '{title}', Story length: {len(story)} chars")
+        # Word count analysis
+        word_count = len(story.split())
+        char_count = len(story)
+        
+        logger.info(f"Parsed - Title: '{title}'")
+        logger.info(f"Story length: {char_count} chars, {word_count} words")
+        
+        # Quality check warnings
+        if word_count < 800:
+            logger.warning(f"⚠️ Story may be too short: {word_count} words (target: 1000-1600)")
+        elif word_count > 1800:
+            logger.warning(f"⚠️ Story may be too long: {word_count} words (target: 1000-1600)")
+        else:
+            logger.info(f"✓ Story length optimal: {word_count} words")
+        
+        # Check for scene markers
+        scene_count = story.lower().count('scene ')
+        if scene_count < 3:
+            logger.warning(f"⚠️ Few scene markers detected: {scene_count} (expected: 5-8)")
+        else:
+            logger.info(f"✓ Scene structure detected: {scene_count} scene markers")
         
         return {'title': title, 'story': story}
