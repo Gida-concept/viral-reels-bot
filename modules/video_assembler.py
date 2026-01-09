@@ -22,27 +22,31 @@ class VideoAssembler:
             # Check if music has audio
             has_music_audio = self._has_audio_stream(music_path)
             
-            # Calculate how many loops we need
-            loops_needed = int(audio_duration / video_duration) + 1
-            
             if has_music_audio:
-                # WITH MUSIC - Properly synced
+                # WITH MUSIC - All streams looped and synced
                 filter_complex = (
-                    # Loop video to match audio duration
-                    f"[0:v]loop=loop={loops_needed}:size=1:start=0,"
-                    f"scale={width}:{height}:force_original_aspect_ratio=increase,"
+                    # Video: scale, crop, loop to match audio duration
+                    f"[0:v]scale={width}:{height}:force_original_aspect_ratio=increase,"
                     f"crop={width}:{height},"
-                    f"trim=duration={audio_duration},"
-                    f"setpts=PTS-STARTPTS[v_base];"
+                    f"setsar=1[v_scaled];"
                     
-                    # Add subtitles to video (starting from 0)
-                    f"[v_base]subtitles={subtitle_path_escaped}:"
-                    f"force_style='FontSize={self.config.SUBTITLE_FONT_SIZE}'[v];"
+                    # Loop video seamlessly to match audio duration
+                    f"[v_scaled]loop=loop=-1:size=1,"
+                    f"setpts=N/(FRAME_RATE*TB)[v_looped];"
                     
-                    # Audio mixing
-                    f"[1:a]volume={self.config.VOICE_VOLUME_BOOST},atrim=duration={audio_duration}[voice];"
-                    f"[2:a]volume={self.config.MUSIC_VOLUME},aloop=loop=-1:size=2e+09,"
-                    f"atrim=duration={audio_duration}[music];"
+                    # Add subtitles with enhanced styling
+                    f"[v_looped]subtitles={subtitle_path_escaped}:"
+                    f"force_style='FontName=Arial,FontSize={self.config.SUBTITLE_FONT_SIZE},"
+                    f"Bold=1,PrimaryColour=&H00FFFFFF,OutlineColour=&H00000000,"
+                    f"BackColour=&H80000000,Outline=2,Shadow=1,MarginV=30,Alignment=2'[v];"
+                    
+                    # Voice audio with volume boost
+                    f"[1:a]volume={self.config.VOICE_VOLUME_BOOST}[voice];"
+                    
+                    # Music audio: loop and adjust volume
+                    f"[2:a]aloop=loop=-1:size=2e+09,volume={self.config.MUSIC_VOLUME}[music];"
+                    
+                    # Mix voice and music
                     f"[voice][music]amix=inputs=2:duration=first:dropout_transition=2[a]"
                 )
                 
@@ -54,32 +58,38 @@ class VideoAssembler:
                     '-filter_complex', filter_complex,
                     '-map', '[v]',
                     '-map', '[a]',
+                    '-t', str(audio_duration),  # Trim to exact audio duration
                     '-c:v', 'libx264',
                     '-preset', 'medium',
                     '-crf', '23',
+                    '-pix_fmt', 'yuv420p',
                     '-c:a', 'aac',
                     '-b:a', '128k',
+                    '-ar', '44100',
                     '-movflags', '+faststart',
-                    '-shortest',
                     output_path
                 ]
             else:
-                # WITHOUT MUSIC - Voice only, properly synced
+                # WITHOUT MUSIC - Voice only, video looped
                 logger.warning("Music has no audio, using voice only")
                 filter_complex = (
-                    # Loop video to match audio duration
-                    f"[0:v]loop=loop={loops_needed}:size=1:start=0,"
-                    f"scale={width}:{height}:force_original_aspect_ratio=increase,"
+                    # Video: scale, crop, loop to match audio duration
+                    f"[0:v]scale={width}:{height}:force_original_aspect_ratio=increase,"
                     f"crop={width}:{height},"
-                    f"trim=duration={audio_duration},"
-                    f"setpts=PTS-STARTPTS[v_base];"
+                    f"setsar=1[v_scaled];"
                     
-                    # Add subtitles (starting from 0)
-                    f"[v_base]subtitles={subtitle_path_escaped}:"
-                    f"force_style='FontSize={self.config.SUBTITLE_FONT_SIZE}'[v];"
+                    # Loop video seamlessly
+                    f"[v_scaled]loop=loop=-1:size=1,"
+                    f"setpts=N/(FRAME_RATE*TB)[v_looped];"
                     
-                    # Voice audio only
-                    f"[1:a]volume={self.config.VOICE_VOLUME_BOOST},atrim=duration={audio_duration}[a]"
+                    # Add subtitles with enhanced styling
+                    f"[v_looped]subtitles={subtitle_path_escaped}:"
+                    f"force_style='FontName=Arial,FontSize={self.config.SUBTITLE_FONT_SIZE},"
+                    f"Bold=1,PrimaryColour=&H00FFFFFF,OutlineColour=&H00000000,"
+                    f"BackColour=&H80000000,Outline=2,Shadow=1,MarginV=30,Alignment=2'[v];"
+                    
+                    # Voice audio with volume boost
+                    f"[1:a]volume={self.config.VOICE_VOLUME_BOOST}[a]"
                 )
                 
                 cmd = [
@@ -89,22 +99,28 @@ class VideoAssembler:
                     '-filter_complex', filter_complex,
                     '-map', '[v]',
                     '-map', '[a]',
+                    '-t', str(audio_duration),  # Trim to exact audio duration
                     '-c:v', 'libx264',
                     '-preset', 'medium',
                     '-crf', '23',
+                    '-pix_fmt', 'yuv420p',
                     '-c:a', 'aac',
                     '-b:a', '128k',
+                    '-ar', '44100',
                     '-movflags', '+faststart',
-                    '-shortest',
                     output_path
                 ]
             
-            logger.info("Running FFmpeg with synchronized streams...")
+            logger.info("Running FFmpeg with looped video and audio...")
             result = subprocess.run(cmd, capture_output=True, text=True, check=True)
             
             # Verify output
             output_duration = self._get_duration(output_path)
-            logger.info(f"Output video duration: {output_duration:.2f}s (expected: {audio_duration:.2f}s)")
+            logger.info(f"✓ Output duration: {output_duration:.2f}s (expected: {audio_duration:.2f}s)")
+            
+            # Check if duration matches (within 1 second tolerance)
+            if abs(output_duration - audio_duration) > 1.0:
+                logger.warning(f"Duration mismatch! Expected {audio_duration:.2f}s, got {output_duration:.2f}s")
             
             logger.info(f"Video assembled successfully: {output_path}")
             return output_path
