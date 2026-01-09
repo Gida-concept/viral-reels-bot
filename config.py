@@ -21,10 +21,10 @@ class Config:
 
     # Video URLs
     VIDEO_URLS = [
-        os.getenv(f'VIDEO_URL_{i}')
-        for i in range(1, 11)
-        if os.getenv(f'VIDEO_URL_{i}')
-    ]
+    os.getenv(f'VIDEO_URL_{i}') 
+    for i in range(1, 21)  # Now supports up to 20 videos
+    if os.getenv(f'VIDEO_URL_{i}')
+]
 
     # Paths
     TEMP_DIR = 'temp'
@@ -69,4 +69,5 @@ class Config:
 
         # Create directories
         os.makedirs(cls.TEMP_DIR, exist_ok=True)
+
         os.makedirs(cls.DATA_DIR, exist_ok=True)
