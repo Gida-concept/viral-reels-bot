@@ -9,62 +9,104 @@ class VideoAssembler:
         self.config = config
     
     def assemble_video(self, video_path, audio_path, music_path, subtitle_path, output_path):
-        logger.info("Assembling video")
+        logger.info("Assembling video with synchronized timing")
         try:
             audio_duration = self._get_duration(audio_path)
-            width, height = self.config.OUTPUT_RESOLUTION
+            video_duration = self._get_duration(video_path)
             
+            logger.info(f"Audio: {audio_duration:.2f}s, Video: {video_duration:.2f}s")
+            
+            width, height = self.config.OUTPUT_RESOLUTION
             subtitle_path_escaped = subtitle_path.replace('\\', '/').replace(':', '\\:')
             
-            # Check if music file has audio stream
+            # Check if music has audio
             has_music_audio = self._has_audio_stream(music_path)
             
+            # Calculate how many loops we need
+            loops_needed = int(audio_duration / video_duration) + 1
+            
             if has_music_audio:
-                # Music file has audio, use it
+                # WITH MUSIC - Properly synced
                 filter_complex = (
-                    f"[0:v]scale={width}:{height}:force_original_aspect_ratio=increase,"
-                    f"crop={width}:{height}[v];"
-                    f"[1:a]volume={self.config.VOICE_VOLUME_BOOST}[voice];"
-                    f"[2:a]volume={self.config.MUSIC_VOLUME}[music];"
-                    f"[voice][music]amix=inputs=2:duration=first[a];"
-                    f"[v]subtitles={subtitle_path_escaped}:force_style='FontSize={self.config.SUBTITLE_FONT_SIZE}'[vout]"
+                    # Loop video to match audio duration
+                    f"[0:v]loop=loop={loops_needed}:size=1:start=0,"
+                    f"scale={width}:{height}:force_original_aspect_ratio=increase,"
+                    f"crop={width}:{height},"
+                    f"trim=duration={audio_duration},"
+                    f"setpts=PTS-STARTPTS[v_base];"
+                    
+                    # Add subtitles to video (starting from 0)
+                    f"[v_base]subtitles={subtitle_path_escaped}:"
+                    f"force_style='FontSize={self.config.SUBTITLE_FONT_SIZE}'[v];"
+                    
+                    # Audio mixing
+                    f"[1:a]volume={self.config.VOICE_VOLUME_BOOST},atrim=duration={audio_duration}[voice];"
+                    f"[2:a]volume={self.config.MUSIC_VOLUME},aloop=loop=-1:size=2e+09,"
+                    f"atrim=duration={audio_duration}[music];"
+                    f"[voice][music]amix=inputs=2:duration=first:dropout_transition=2[a]"
                 )
+                
+                cmd = [
+                    'ffmpeg', '-y',
+                    '-i', video_path,
+                    '-i', audio_path,
+                    '-i', music_path,
+                    '-filter_complex', filter_complex,
+                    '-map', '[v]',
+                    '-map', '[a]',
+                    '-c:v', 'libx264',
+                    '-preset', 'medium',
+                    '-crf', '23',
+                    '-c:a', 'aac',
+                    '-b:a', '128k',
+                    '-movflags', '+faststart',
+                    '-shortest',
+                    output_path
+                ]
             else:
-                # No music audio, use voice only
-                logger.warning("Music file has no audio stream, using voice only")
+                # WITHOUT MUSIC - Voice only, properly synced
+                logger.warning("Music has no audio, using voice only")
                 filter_complex = (
-                    f"[0:v]scale={width}:{height}:force_original_aspect_ratio=increase,"
-                    f"crop={width}:{height}[v];"
-                    f"[1:a]volume={self.config.VOICE_VOLUME_BOOST}[a];"
-                    f"[v]subtitles={subtitle_path_escaped}:force_style='FontSize={self.config.SUBTITLE_FONT_SIZE}'[vout]"
+                    # Loop video to match audio duration
+                    f"[0:v]loop=loop={loops_needed}:size=1:start=0,"
+                    f"scale={width}:{height}:force_original_aspect_ratio=increase,"
+                    f"crop={width}:{height},"
+                    f"trim=duration={audio_duration},"
+                    f"setpts=PTS-STARTPTS[v_base];"
+                    
+                    # Add subtitles (starting from 0)
+                    f"[v_base]subtitles={subtitle_path_escaped}:"
+                    f"force_style='FontSize={self.config.SUBTITLE_FONT_SIZE}'[v];"
+                    
+                    # Voice audio only
+                    f"[1:a]volume={self.config.VOICE_VOLUME_BOOST},atrim=duration={audio_duration}[a]"
                 )
+                
+                cmd = [
+                    'ffmpeg', '-y',
+                    '-i', video_path,
+                    '-i', audio_path,
+                    '-filter_complex', filter_complex,
+                    '-map', '[v]',
+                    '-map', '[a]',
+                    '-c:v', 'libx264',
+                    '-preset', 'medium',
+                    '-crf', '23',
+                    '-c:a', 'aac',
+                    '-b:a', '128k',
+                    '-movflags', '+faststart',
+                    '-shortest',
+                    output_path
+                ]
             
-            cmd = [
-                'ffmpeg', '-y',
-                '-stream_loop', '-1',
-                '-i', video_path,
-                '-i', audio_path,
-            ]
+            logger.info("Running FFmpeg with synchronized streams...")
+            result = subprocess.run(cmd, capture_output=True, text=True, check=True)
             
-            if has_music_audio:
-                cmd.extend(['-i', music_path])
+            # Verify output
+            output_duration = self._get_duration(output_path)
+            logger.info(f"Output video duration: {output_duration:.2f}s (expected: {audio_duration:.2f}s)")
             
-            cmd.extend([
-                '-filter_complex', filter_complex,
-                '-map', '[vout]',
-                '-map', '[a]',
-                '-t', str(audio_duration),
-                '-c:v', 'libx264',
-                '-preset', 'medium',
-                '-crf', '23',
-                '-c:a', 'aac',
-                '-b:a', '128k',
-                '-movflags', '+faststart',
-                output_path
-            ])
-            
-            subprocess.run(cmd, capture_output=True, text=True, check=True)
-            logger.info(f"Video assembled: {output_path}")
+            logger.info(f"Video assembled successfully: {output_path}")
             return output_path
             
         except subprocess.CalledProcessError as e:
