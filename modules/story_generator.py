@@ -6,7 +6,7 @@ logger = setup_logger()
 class StoryGenerator:
     def __init__(self, api_key: str):
         self.client = Groq(api_key=api_key)
-        self.model = "mixtral-8x7b-32768"
+        self.model = "llama-3.3-70b-versatile"  # Best for creative stories
     
     def generate_story(self, category: str):
         logger.info(f"Generating story for: {category}")
@@ -66,3 +66,4 @@ Story:
             story = response
         
         return {'title': title, 'story': story}
+
