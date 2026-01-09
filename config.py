@@ -1,7 +1,9 @@
 import os
 from dotenv import load_dotenv
+from utils.logger import setup_logger
 
 load_dotenv()
+logger = setup_logger()
 
 class Config:
     # API Keys
@@ -34,8 +36,8 @@ class Config:
     STATE_FILE = os.path.join(DATA_DIR, 'state.json')
     
     # Settings
-    VOICE_VOLUME_BOOST = 2.10
-    MUSIC_VOLUME = 0.60
+    VOICE_VOLUME_BOOST = 1.10
+    MUSIC_VOLUME = 0.20
     OUTPUT_RESOLUTION = (360, 640)
     SUBTITLE_FONT_SIZE = 24
     TTS_VOICE = 'en-US-AndrewNeural'
@@ -49,5 +51,22 @@ class Config:
             raise ValueError(f"Missing: {', '.join(missing)}")
         if not cls.VIDEO_URLS:
             raise ValueError("No video URLs configured")
+        
+        # Validate settings
+        if cls.SUBTITLE_FONT_SIZE < 10 or cls.SUBTITLE_FONT_SIZE > 100:
+            logger.warning(f"Subtitle font size {cls.SUBTITLE_FONT_SIZE} may be too small/large")
+        
+        if cls.VOICE_VOLUME_BOOST < 0.5 or cls.VOICE_VOLUME_BOOST > 2.0:
+            logger.warning(f"Voice volume boost {cls.VOICE_VOLUME_BOOST} may be extreme")
+        
+        if cls.MUSIC_VOLUME < 0.05 or cls.MUSIC_VOLUME > 0.5:
+            logger.warning(f"Music volume {cls.MUSIC_VOLUME} may be too quiet/loud")
+        
+        # Create directories
         os.makedirs(cls.TEMP_DIR, exist_ok=True)
         os.makedirs(cls.DATA_DIR, exist_ok=True)
+        
+        logger.info(f"✓ Configuration validated")
+        logger.info(f"  Videos: {len(cls.VIDEO_URLS)} URLs")
+        logger.info(f"  Categories: {len(cls.CATEGORIES)}")
+        logger.info(f"  Subtitle size: {cls.SUBTITLE_FONT_SIZE}px")
