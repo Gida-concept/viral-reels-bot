@@ -1,5 +1,4 @@
 import requests
-import random
 import subprocess
 import json
 from utils.logger import setup_logger
@@ -15,24 +14,28 @@ class MusicDownloader:
     def download_music(self, output_path: str):
         logger.info("Downloading background music")
         
-        # Try Pixabay first
-        try:
-            pixabay_path = self._download_from_pixabay(output_path)
-            # Check if downloaded file has audio
-            if self._has_audio_stream(pixabay_path):
-                return pixabay_path
-            else:
-                logger.warning("Pixabay file has no audio stream, using fallback...")
-                raise ValueError("No audio in Pixabay file")
-        except Exception as e:
-            logger.warning(f"Pixabay download issue: {e}")
-            
-            # Use fallback music
-            if self.fallback_url:
-                logger.info("Using fallback music URL...")
-                return self._download_from_url(self.fallback_url, output_path)
-            else:
-                raise Exception("No fallback music URL configured")
+        # ALWAYS use Cloudinary music if configured
+        if self.fallback_url:
+            logger.info("Using Cloudinary background music (primary source)")
+            try:
+                music_path = self._download_from_url(self.fallback_url, output_path)
+                
+                # Verify it has audio
+                if self._has_audio_stream(music_path):
+                    logger.info("✓ Cloudinary music has audio")
+                    return music_path
+                else:
+                    logger.warning("Cloudinary music has no audio!")
+                    raise ValueError("Cloudinary file has no audio")
+                    
+            except Exception as e:
+                logger.warning(f"Cloudinary download failed: {e}, trying Pixabay...")
+                # Fall back to Pixabay only if Cloudinary fails
+                return self._download_from_pixabay(output_path)
+        else:
+            # No Cloudinary URL, use Pixabay
+            logger.info("No Cloudinary URL configured, using Pixabay")
+            return self._download_from_pixabay(output_path)
     
     def _download_from_pixabay(self, output_path: str):
         try:
@@ -44,6 +47,7 @@ class MusicDownloader:
             if not data.get('hits'):
                 raise ValueError("No music found on Pixabay")
             
+            import random
             music = random.choice(data['hits'])
             video_url = music['videos']['medium']['url']
             
@@ -86,4 +90,3 @@ class MusicDownloader:
             return has_audio
         except:
             return False
-
