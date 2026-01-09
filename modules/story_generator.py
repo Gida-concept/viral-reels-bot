@@ -425,16 +425,18 @@ REALISTIC PACING:
 - Unreliable narrator tricks
 
 ✅ MANDATORY REQUIREMENTS:
-- 5-8 distinct scenes clearly marked ("Scene 1:", "Scene 2:", etc.)
+- Structure story in 5-8 scenes MENTALLY but write as continuous narrative
+- NO "Scene 1:", "Scene 2:" labels in the output
+- Use paragraph breaks for scene transitions
 - Consistent protagonist with FIXED NAME throughout
 - Natural cause-and-effect progression
-- Clear location/time for each scene
+- Clear location/time transitions through context, not labels
 - Emotional journey that makes sense
 - Character-driven, not plot-driven
 - Ending that feels earned and true
 - 1000-1600 words total (TARGET: 1200-1400 for optimal 5-7 minutes)
 - 2-3 dialogue exchanges total
-- Balanced pacing across scenes
+- Balanced pacing across narrative
 
 🎨 TONE: Grounded. Real. Emotional. Cinematic. True.
 
@@ -442,13 +444,10 @@ Format EXACTLY as:
 Title: [Clear, compelling title]
 
 Story:
-Scene 1:
-[Scene content]
-
-Scene 2:
-[Scene content]
-
-[Continue with clear scene markers]
+[Write the complete story as flowing narrative - NO scene labels in the final text]
+[Structure it mentally in scenes but write it as continuous prose]
+[Scene transitions should be natural paragraph breaks]
+[Let the story flow without "Scene 1:", "Scene 2:" markers]
 
 This is a FILM told through words. Make us SEE it. Make us FEEL it. Keep it REAL.
 Name characters and keep those names. Balance description with dialogue. Let scenes flow.
@@ -508,3 +507,4 @@ BEGIN:"""
             logger.info(f"✓ Scene structure detected: {scene_count} scene markers")
         
         return {'title': title, 'story': story}
+
