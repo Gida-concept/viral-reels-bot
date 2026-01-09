@@ -35,8 +35,8 @@ class Config:
     STATE_FILE = os.path.join(DATA_DIR, 'state.json')
 
     # Audio settings
-    VOICE_VOLUME_BOOST = 1.10  # 110%
-    MUSIC_VOLUME = 0.20  # 20%
+    VOICE_VOLUME_BOOST = 2.10  # 210%
+    MUSIC_VOLUME = 0.30  # 30%
 
     # Video settings
     OUTPUT_RESOLUTION = (360, 640)  # Vertical video (360px wide)
@@ -47,7 +47,7 @@ class Config:
     SUBTITLE_FONT_SIZE = 10
 
     # Voice settings
-    TTS_VOICE = 'en-US-GuyNeural'  # Natural male voice
+    TTS_VOICE = 'en-US-AndrewNeural'  # Natural male voice
 
     # Scheduler
     RUN_INTERVAL_HOURS = 3
@@ -74,4 +74,5 @@ class Config:
         os.makedirs(cls.TEMP_DIR, exist_ok=True)
 
         os.makedirs(cls.DATA_DIR, exist_ok=True)
+
 
