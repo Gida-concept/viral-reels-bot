@@ -92,8 +92,9 @@ class ViralReelsBot:
             logger.info(f"  Total Runs: {self.state_manager.state['total_runs']}")
             logger.info(f"{'='*60}\n")
             
-            # Cleanup temp files
-            self._cleanup_temp_files([audio_path, video_path, music_path, subtitle_path])
+            # Cleanup ALL temp files including final output to save space
+            self._cleanup_temp_files([audio_path, video_path, music_path, subtitle_path, output_path])
+            logger.info("✓ All temp files deleted to preserve space")
             
         except Exception as e:
             logger.error(f"\n{'!'*60}")
@@ -135,3 +136,4 @@ class ViralReelsBot:
 if __name__ == "__main__":
     bot = ViralReelsBot()
     bot.start_scheduler()
+
