@@ -71,7 +71,7 @@ Begin now:"""
             first_lines = response.strip().split('\n')
             for line in first_lines:
                 if line.strip() and not line.startswith('Title:') and not line.startswith('Story:'):
-                    title = line.strip()[:100]  # Max 100 chars
+                    title = line.strip()[:100]
                     break
             
             if not title:
