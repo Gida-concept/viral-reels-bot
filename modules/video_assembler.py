@@ -22,20 +22,15 @@ class VideoAssembler:
             # Check if music has audio
             has_music_audio = self._has_audio_stream(music_path)
             
-            if has_music_audio:
-                # WITH MUSIC - All streams looped and synced
+        if has_music_audio:
+                # WITH MUSIC - Simpler looping approach
                 filter_complex = (
-                    # Video: scale, crop, loop to match audio duration
+                    # Scale and crop video
                     f"[0:v]scale={width}:{height}:force_original_aspect_ratio=increase,"
-                    f"crop={width}:{height},"
-                    f"setsar=1[v_scaled];"
+                    f"crop={width}:{height}[v_crop];"
                     
-                    # Loop video seamlessly to match audio duration
-                    f"[v_scaled]loop=loop=-1:size=1,"
-                    f"setpts=N/(FRAME_RATE*TB)[v_looped];"
-                    
-                    # Add subtitles with enhanced styling
-                    f"[v_looped]subtitles={subtitle_path_escaped}:"
+                    # Add subtitles
+                    f"[v_crop]subtitles={subtitle_path_escaped}:"
                     f"force_style='FontName=Arial,FontSize={self.config.SUBTITLE_FONT_SIZE},"
                     f"Bold=1,PrimaryColour=&H00FFFFFF,OutlineColour=&H00000000,"
                     f"BackColour=&H80000000,Outline=2,Shadow=1,MarginV=30,Alignment=2'[v];"
@@ -52,13 +47,14 @@ class VideoAssembler:
                 
                 cmd = [
                     'ffmpeg', '-y',
+                    '-stream_loop', '-1',  # Loop video input
                     '-i', video_path,
                     '-i', audio_path,
                     '-i', music_path,
                     '-filter_complex', filter_complex,
                     '-map', '[v]',
                     '-map', '[a]',
-                    '-t', str(audio_duration),  # Trim to exact audio duration
+                    '-t', str(audio_duration),
                     '-c:v', 'libx264',
                     '-preset', 'medium',
                     '-crf', '23',
@@ -69,21 +65,17 @@ class VideoAssembler:
                     '-movflags', '+faststart',
                     output_path
                 ]
+                            
             else:
-                # WITHOUT MUSIC - Voice only, video looped
+                # WITHOUT MUSIC - Voice only
                 logger.warning("Music has no audio, using voice only")
                 filter_complex = (
-                    # Video: scale, crop, loop to match audio duration
+                    # Scale and crop video
                     f"[0:v]scale={width}:{height}:force_original_aspect_ratio=increase,"
-                    f"crop={width}:{height},"
-                    f"setsar=1[v_scaled];"
+                    f"crop={width}:{height}[v_crop];"
                     
-                    # Loop video seamlessly
-                    f"[v_scaled]loop=loop=-1:size=1,"
-                    f"setpts=N/(FRAME_RATE*TB)[v_looped];"
-                    
-                    # Add subtitles with enhanced styling
-                    f"[v_looped]subtitles={subtitle_path_escaped}:"
+                    # Add subtitles
+                    f"[v_crop]subtitles={subtitle_path_escaped}:"
                     f"force_style='FontName=Arial,FontSize={self.config.SUBTITLE_FONT_SIZE},"
                     f"Bold=1,PrimaryColour=&H00FFFFFF,OutlineColour=&H00000000,"
                     f"BackColour=&H80000000,Outline=2,Shadow=1,MarginV=30,Alignment=2'[v];"
@@ -94,12 +86,13 @@ class VideoAssembler:
                 
                 cmd = [
                     'ffmpeg', '-y',
+                    '-stream_loop', '-1',  # Loop video input
                     '-i', video_path,
                     '-i', audio_path,
                     '-filter_complex', filter_complex,
                     '-map', '[v]',
                     '-map', '[a]',
-                    '-t', str(audio_duration),  # Trim to exact audio duration
+                    '-t', str(audio_duration),
                     '-c:v', 'libx264',
                     '-preset', 'medium',
                     '-crf', '23',
@@ -153,3 +146,4 @@ class VideoAssembler:
             return len(data.get('streams', [])) > 0
         except:
             return False
+
