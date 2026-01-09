@@ -58,7 +58,7 @@ class ViralReelsBot:
             logger.info(f"[3/8] Generating voice narration...")
             self.voice_generator.generate_voice(story, audio_path)
             
-            # Step 4: Generate subtitles
+            # Step 4: Generate subtitles (kept for potential future use)
             logger.info(f"[4/8] Generating subtitles...")
             self.subtitle_generator.generate_subtitles(audio_path, subtitle_path, story)
             
@@ -71,14 +71,14 @@ class ViralReelsBot:
             logger.info(f"[6/8] Downloading background music...")
             self.music_downloader.download_music(music_path)
             
-            # Step 7: Assemble video
+            # Step 7: Assemble video with static title caption
             logger.info(f"[7/8] Assembling video...")
-            self.video_assembler.assemble_video(video_path, audio_path, music_path, subtitle_path, output_path)
+            self.video_assembler.assemble_video(video_path, audio_path, music_path, subtitle_path, output_path, title)
             
             # Step 8: Upload to Facebook
             logger.info(f"[8/8] Uploading to Facebook...")
             hashtags = self.facebook_uploader.generate_hashtags(category)
-            upload_result = self.facebook_uploader.upload_reel(output_path, title, hashtags)
+            upload_result = self.facebook_uploader.upload_reel(output_path, title, hashtags, story)
             
             # Update state
             self.state_manager.increment_run_count()
@@ -136,4 +136,3 @@ class ViralReelsBot:
 if __name__ == "__main__":
     bot = ViralReelsBot()
     bot.start_scheduler()
-
