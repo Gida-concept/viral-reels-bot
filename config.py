@@ -24,6 +24,9 @@ class Config:
     os.getenv(f'VIDEO_URL_{i}') 
     for i in range(1, 21)  # Now supports up to 20 videos
     if os.getenv(f'VIDEO_URL_{i}')
+
+        # Fallback background music URL (Cloudinary)
+        FALLBACK_MUSIC_URL = os.getenv('FALLBACK_MUSIC_URL', 'https://res.cloudinary.com/dv0unfuhw/video/upload/v1767958481/sndhmaxhxvpz1veablza.mp3')
 ]
 
     # Paths
@@ -71,3 +74,4 @@ class Config:
         os.makedirs(cls.TEMP_DIR, exist_ok=True)
 
         os.makedirs(cls.DATA_DIR, exist_ok=True)
+
