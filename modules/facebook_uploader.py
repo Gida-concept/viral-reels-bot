@@ -12,7 +12,7 @@ class FacebookUploader:
     def upload_reel(self, video_path: str, title: str, hashtags: list, story: str = None):
         logger.info(f"Uploading to Facebook: {title}")
         try:
-            # Generate unique description from story
+            # Generate description from first 3 lines of story
             description = self._generate_description_from_story(story, title)
             
             # Create caption with title, description, and hashtags
@@ -56,48 +56,36 @@ class FacebookUploader:
             raise
     
     def _generate_description_from_story(self, story: str, title: str):
-        """Generate unique 3-line description from the actual story"""
+        """Use first 3 lines from the actual story as description"""
         
-        if not story or len(story) < 100:
-            # Fallback if story is too short
-            return f"A story you won't forget.\nWatch till the end.\nThe twist will shock you! 🔥"
+        if not story or len(story) < 20:
+            return "A story that will surprise you.\nWatch to find out what happens.\nYou won't believe the ending!"
         
-        # Extract first 2-3 sentences or ~120-180 characters as hook
-        sentences = story.replace('\n', ' ').split('.')
+        # Split story into lines
+        lines = story.strip().split('\n')
         
-        # Get first compelling sentence
-        line1 = sentences[0].strip() if sentences else story[:60].strip()
+        # Filter out empty lines
+        lines = [line.strip() for line in lines if line.strip()]
         
-        # Clean up and limit length
-        if len(line1) > 80:
-            line1 = line1[:77] + "..."
-        
-        # Second line - continue the hook or create intrigue
-        if len(sentences) > 1:
-            line2 = sentences[1].strip()
-            if len(line2) > 80:
-                line2 = line2[:77] + "..."
+        if len(lines) >= 3:
+            # Use first 3 lines exactly as written
+            description = f"{lines[0]}\n{lines[1]}\n{lines[2]}"
+        elif len(lines) == 2:
+            # Use 2 lines + add emoji
+            description = f"{lines[0]}\n{lines[1]}\n🎬"
+        elif len(lines) == 1:
+            # Split first line into sentences
+            sentences = lines[0].split('.')
+            sentences = [s.strip() + '.' for s in sentences if s.strip()]
+            
+            if len(sentences) >= 3:
+                description = f"{sentences[0]}\n{sentences[1]}\n{sentences[2]}"
+            else:
+                description = f"{lines[0]}\n\nWatch now! 🔥"
         else:
-            # Create intrigue if we don't have a second sentence
-            line2 = "What happens next will surprise you."
+            description = story[:150].strip()
         
-        # Third line - always a call to action with emoji
-        call_to_actions = [
-            "Watch till the end! 🎬",
-            "The ending is unreal! 🔥",
-            "You won't see it coming! ⚡",
-            "Wait for the twist! 💥",
-            "This changes everything! ✨",
-            "The reveal is insane! 🎯",
-            "Don't miss the finale! 👀",
-            "The conclusion shocked me! 🌟"
-        ]
-        
-        import random
-        line3 = random.choice(call_to_actions)
-        
-        # Combine into 3-line description
-        description = f"{line1}\n{line2}\n{line3}"
+        logger.info(f"Description: First 3 lines from story")
         
         return description
     
