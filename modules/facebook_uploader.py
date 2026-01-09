@@ -12,13 +12,13 @@ class FacebookUploader:
     def upload_reel(self, video_path: str, title: str, hashtags: list, story: str = None):
         logger.info(f"Uploading to Facebook: {title}")
         try:
-            # Generate description
-            description = self._generate_description(title, story)
+            # Generate unique description from story
+            description = self._generate_description_from_story(story, title)
             
             # Create caption with title, description, and hashtags
             caption = f"{title}\n\n{description}\n\n" + " ".join([f"#{tag}" for tag in hashtags])
             
-            logger.info(f"Caption preview: {caption[:100]}...")
+            logger.info(f"Caption preview:\n{caption[:200]}...")
             
             # Direct video upload
             upload_url = f"{self.graph_url}/{self.page_id}/videos"
@@ -55,33 +55,51 @@ class FacebookUploader:
             logger.error(f"Upload error: {e}")
             raise
     
-    def _generate_description(self, title: str, story: str = None):
-        """Generate engaging description for the post"""
+    def _generate_description_from_story(self, story: str, title: str):
+        """Generate unique 3-line description from the actual story"""
         
-        # If we have the story, create a teaser
-        if story and len(story) > 50:
-            # Get first 100-150 characters as teaser
-            teaser = story[:150].strip()
-            
-            # Cut at last complete sentence or word
-            if '.' in teaser:
-                teaser = teaser[:teaser.rfind('.')+1]
-            elif ' ' in teaser:
-                teaser = teaser[:teaser.rfind(' ')] + '...'
-            
-            return f"{teaser}\n\n🎬 Watch till the end for the twist!"
+        if not story or len(story) < 100:
+            # Fallback if story is too short
+            return f"A story you won't forget.\nWatch till the end.\nThe twist will shock you! 🔥"
+        
+        # Extract first 2-3 sentences or ~120-180 characters as hook
+        sentences = story.replace('\n', ' ').split('.')
+        
+        # Get first compelling sentence
+        line1 = sentences[0].strip() if sentences else story[:60].strip()
+        
+        # Clean up and limit length
+        if len(line1) > 80:
+            line1 = line1[:77] + "..."
+        
+        # Second line - continue the hook or create intrigue
+        if len(sentences) > 1:
+            line2 = sentences[1].strip()
+            if len(line2) > 80:
+                line2 = line2[:77] + "..."
         else:
-            # Generic engaging description
-            descriptions = [
-                f"🔥 You won't believe what happens in this story!\n\n💭 Watch till the end...",
-                f"⚡ This story will blow your mind!\n\n👀 Don't miss the ending!",
-                f"🎯 A story you've NEVER heard before!\n\n✨ The twist is unreal!",
-                f"💥 This changed my perspective completely!\n\n🎬 Must watch till the end!",
-                f"🌟 The most unique story you'll hear today!\n\n🔥 Wait for the ending!"
-            ]
-            
-            import random
-            return random.choice(descriptions)
+            # Create intrigue if we don't have a second sentence
+            line2 = "What happens next will surprise you."
+        
+        # Third line - always a call to action with emoji
+        call_to_actions = [
+            "Watch till the end! 🎬",
+            "The ending is unreal! 🔥",
+            "You won't see it coming! ⚡",
+            "Wait for the twist! 💥",
+            "This changes everything! ✨",
+            "The reveal is insane! 🎯",
+            "Don't miss the finale! 👀",
+            "The conclusion shocked me! 🌟"
+        ]
+        
+        import random
+        line3 = random.choice(call_to_actions)
+        
+        # Combine into 3-line description
+        description = f"{line1}\n{line2}\n{line3}"
+        
+        return description
     
     def generate_hashtags(self, category: str):
         base_tags = ['reels', 'viral', 'story']
