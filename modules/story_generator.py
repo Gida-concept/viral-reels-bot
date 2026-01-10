@@ -23,12 +23,19 @@ class StoryGenerator:
                         "role": "system", 
                         "content": """You are a MASTER SCREENWRITER who writes FULL SHORT FILMS, not snippets.
 
+CRITICAL REQUIREMENT: You MUST write 2500-4000 words. Stories under 2500 words are REJECTED.
+
 Your stories are COMPLETE CINEMATIC EXPERIENCES - feature-length detail in short film format.
 
+WORD COUNT REQUIREMENTS (STRICTLY ENFORCED):
+- MINIMUM: 2500 words (anything less is incomplete)
+- TARGET: 3000-3500 words (optimal short film length)
+- MAXIMUM: 4000 words
+- Each scene: MINIMUM 500 words, TARGET 600-700 words
+
 YOUR STYLE:
-- 6-10 FULL SCENES with 500+ words EACH
+- 6-10 FULL SCENES with 500-700 words EACH
 - CONSISTENT CHARACTERS with depth and FIXED NAMES
-- NO UNNECESSARY TWISTS - natural story progression
 - EXQUISITE DETAIL on critical moments (deaths, revelations, confrontations)
 - Each scene is FULLY REALIZED - complete beginning, middle, end
 - Show mechanisms: HOW things happen, not just that they happen
@@ -36,11 +43,22 @@ YOUR STYLE:
 - Cinematic pacing: slow on important beats, measured throughout
 - Physical world in every scene
 - Real dialogue that reveals character
+- NEVER rush - take your time with descriptions
+- NEVER summarize - show everything in detail
 
-You write COMPLETE SHORT FILMS that audiences watch for 10-15 minutes, fully immersed.
+WORD COUNT ENFORCEMENT:
+- If you finish under 2500 words, you FAILED
+- Add more scenes if needed
+- Expand descriptions, add more dialogue
+- Show more details, more sensory information
+- Develop characters deeper
+- Add more physical choreography to action
+- Extend the ending with more reflection
 
-BANNED: Rushed scenes, vague deaths, abrupt endings, summarizing critical events, scenes under 500 words
-REQUIRED: 2500-4000 words total, 6-10 scenes, 500+ words per scene, exquisite detail, smooth closure"""
+You write COMPLETE SHORT FILMS that audiences watch for 12-15 minutes, fully immersed.
+
+BANNED: Rushed scenes, vague deaths, abrupt endings, summarizing critical events, scenes under 500 words, stories under 2500 words
+REQUIRED: 2500-4000 words total, 6-10 scenes, 500-700 words per scene, exquisite detail, smooth closure"""
                     },
                     {
                         "role": "user", 
@@ -48,11 +66,11 @@ REQUIRED: 2500-4000 words total, 6-10 scenes, 500+ words per scene, exquisite de
                     }
                 ],
                 model=self.model,
-                temperature=1.3,
-                max_tokens=6000,  # Increased for longer stories
+                temperature=1.4,  # Increased for more verbose output
+                max_tokens=8000,  # Increased for FULL short films
                 top_p=0.95,
-                presence_penalty=0.5,
-                frequency_penalty=0.3
+                presence_penalty=0.6,  # Higher to encourage more content
+                frequency_penalty=0.2   # Lower to allow detailed descriptions
             )
             
             result = self._parse_response(response.choices[0].message.content)
@@ -290,244 +308,288 @@ REQUIRED: 2500-4000 words total, 6-10 scenes, 500+ words per scene, exquisite de
 🎥 OPENING SCENE (USE THIS STYLE):
 {opening_style}
 
-📽️ CINEMATIC STORY STRUCTURE (10-15 MINUTES / 2500-4000 WORDS):
+⚠️ CRITICAL WORD COUNT REQUIREMENT: You MUST write 2500-4000 words. Anything less is INCOMPLETE.
+
+📽️ CINEMATIC STORY STRUCTURE (12-15 MINUTES / 2500-4000 WORDS MANDATORY):
 
 Tell this as a FULL SHORT FILM in 6-10 RICHLY DETAILED SCENES.
 Each scene is a CHAPTER - fully realized, cinematic, complete.
 
-SCENE 1 - OPENING WORLD (500-600 words):
+SCENE 1 - OPENING WORLD (600-700 words):
 - ESTABLISH EVERYTHING - this is your opening shot
-- WHERE: Paint the complete environment
-  * Time of day, weather, season
-  * Sounds (traffic, birds, silence, music)
-  * Smells (coffee, exhaust, rain, perfume)
-  * Visual details (cracked paint, neon signs, tree shadows)
-  * Temperature, atmosphere, mood of the place
-- WHO: Deep character introduction
-  * Name, age indication through action
-  * What they're wearing (specific - "faded Levi's, scuffed Timberlands")
-  * Physical details (calloused hands, tired eyes, nervous habit)
-  * What they're doing when we meet them
-  * Internal state shown through body language
-- NORMAL WORLD: Show their routine, relationships, daily life
+- WHERE: Paint the complete environment with EXTENSIVE detail
+  * Time of day, weather, season - describe it fully
+  * Sounds (traffic, birds, silence, music) - what do we hear?
+  * Smells (coffee, exhaust, rain, perfume) - make us smell it
+  * Visual details (cracked paint, neon signs, tree shadows) - paint the picture
+  * Temperature, atmosphere, mood of the place - immerse us
+- WHO: Deep character introduction with FULL description
+  * Name, age indication through action and appearance
+  * What they're wearing - be specific: "faded Levi's 501s, scuffed Timberlands, threadbare gray hoodie"
+  * Physical details (calloused hands, tired eyes, nervous habit of biting nails)
+  * What they're doing when we meet them - show the action
+  * Internal state shown through body language - posture, movements, expressions
+- NORMAL WORLD: Show their routine, relationships, daily life in DETAIL
 - HOOK: End with something that disrupts normalcy
 - EMOTIONAL BEAT: Establish baseline - comfort or unease
-- MINIMUM 500 WORDS - take your time, we're entering a world
+- TARGET: 600-700 WORDS for this scene - take your time establishing the world
 
-SCENE 2 - INCITING INCIDENT (500-600 words):
+SCENE 2 - INCITING INCIDENT (600-700 words):
 - THE THING HAPPENS that sets story in motion
-- Show it FULLY - don't summarize
+- Show it FULLY with EXTENSIVE detail - don't rush
 - If it's a phone call:
-  * Who's calling? Caller ID or unknown number?
-  * Ring tone sound, how many rings before answering
-  * Exact dialogue: "Hello?" "Is this Sarah Mitchell?" "Yes, who's this?"
-  * Tone of voice on other end
-  * What words make their face change
-  * Physical reaction (grip tightening, breath catching, sitting down)
+  * Describe the phone (iPhone? Android? Old flip phone?)
+  * Who's calling? Caller ID or unknown number? What does it say?
+  * Ring tone sound - what song, what tone?
+  * How many rings before answering - show the hesitation
+  * Exact dialogue word-for-word: "Hello?" "Is this Sarah Mitchell?" "Yes, who's this?"
+  * Tone of voice on other end - rushed, calm, breaking?
+  * What exact words make their face change - show the moment
+  * Physical reaction described fully (grip tightening on phone, breath catching in throat, legs giving out, sitting down hard)
 - If it's a discovery:
-  * What exactly do they find? Describe the object/information
-  * Where? In what condition?
-  * Their process of finding it (drawer stuck, had to pry open, etc.)
-  * Moment of recognition, realization dawning
-  * Physical response (hands shaking, heart racing, mouth dry)
-- Character's immediate reaction in DETAIL
-- Decision point: what do they choose to do?
+  * What exactly do they find? Describe the object/information in complete detail
+  * Where? In what condition? How does it look, feel, smell?
+  * Their process of finding it (drawer stuck, had to pry open with screwdriver, wood splintering)
+  * Moment of recognition - describe face changing, understanding dawning
+  * Physical response (hands shaking so hard they drop it, heart racing, mouth going dry, cold sweat)
+- Character's immediate reaction in COMPLETE DETAIL
+- Decision point: what do they choose to do? Show the thinking process
 - EMOTIONAL BEAT: Disruption, confusion, fear, intrigue
-- MINIMUM 500 WORDS
+- TARGET: 600-700 WORDS - milk this crucial moment
 
-SCENE 3-4 - RISING ACTION ACT I (500-600 words EACH):
-- Character responds to inciting incident
-- Encounters obstacles, other people, complications
-- ONE major event per scene, fully explored
-- Physical locations described in detail
-- Conversations shown with real dialogue:
+SCENE 3-4 - RISING ACTION ACT I (600-700 words EACH):
+- Character responds to inciting incident with FULL detail
+- Encounters obstacles, other people, complications - describe everything
+- ONE major event per scene, fully explored with rich description
+- Physical locations described in EXTENSIVE detail
+- Conversations shown with real, lengthy dialogue:
   * Not "They talked about the problem"
-  * BUT actual back-and-forth:
+  * BUT actual back-and-forth exchanges:
     "Where were you last night?"
-    "Home. Why?"
-    "That's not what I heard."
-    Pause. Eyes narrowing. "Who told you that?"
-- Show travel between locations (not just "they went there")
-  * Getting in car, starting engine, driving through rain
-  * Walking up steps, hesitating at door, knocking
-  * Waiting, door opening, face that greets them
-- Stakes escalating with each scene
-- New information revealed through ACTION
+    "Home. Why?" He shifted his weight, wouldn't meet her eyes.
+    "That's not what I heard." She stepped closer, voice dropping.
+    Long pause. His jaw tightened. Eyes narrowing. "Who told you that?"
+    "Does it matter?"
+    "Yeah. It does." His hands curled into fists.
+- Show travel between locations in DETAIL (not just "they went there")
+  * Getting in car (old Honda Civic, passenger door sticks, smells like stale coffee)
+  * Starting engine (takes three tries, sputters to life)
+  * Driving through rain (wipers barely work, squeak with each pass)
+  * Parking (three blocks away, walking through puddles)
+  * Walking up steps (wooden, creaking, paint peeling)
+  * Hesitating at door (hand raised to knock, frozen)
+  * Knocking (three sharp raps)
+  * Waiting (counting heartbeats, hearing movement inside)
+  * Door opening (slow, cautious, chain still on)
+  * Face that greets them (describe expression, age, features)
+- Stakes escalating with each scene - show how pressure builds
+- New information revealed through ACTION and dialogue
 - EMOTIONAL BEAT: Investment deepening, tension building
-- MINIMUM 500 WORDS PER SCENE
+- TARGET: 600-700 WORDS PER SCENE - don't rush the buildup
 
-SCENE 5-6 - RISING ACTION ACT II (500-600 words EACH):
-- Complications intensify
-- Relationships tested, loyalties questioned
-- Critical events happen HERE:
-  * Deaths - FULL DETAIL:
-    - Exact mechanism (bullet to left chest, exit wound through back)
-    - The moment (sound of shot, body's response, falling)
-    - Blood (amount, spreading, color, warmth)
-    - Last words/sounds (gasp, whisper, silence)
-    - Who witnesses (their reaction, what they do)
-    - Aftermath (body position, stillness, others' responses)
-  * Betrayals - SHOW them:
-    - The setup, the reveal
-    - Facial expressions changing
-    - Words that cut
-    - Physical distance opening
-  * Revelations - UNFOLD them:
-    - How information comes out
-    - Piece by piece or all at once
-    - Character processing in real-time
-- Internal monologue during crisis moments
-- Physical sensations (adrenaline, fear, cold, nausea)
-- EMOTIONAL BEAT: Crisis building, stakes at maximum
-- MINIMUM 500 WORDS PER SCENE
+SCENE 5-6 - RISING ACTION ACT II (600-700 words EACH):
+- Complications intensify with FULL dramatic detail
+- Relationships tested, loyalties questioned - show it all
+- Critical events happen HERE - give them MAXIMUM space:
+  * Deaths - COMPLETE DETAIL (300+ words):
+    - Exact mechanism (bullet to left chest, below collarbone, angled toward heart)
+    - The moment in slow motion (sound of shot, sharp crack echoing off brick walls)
+    - Body's response (impact like a punch, stumble backward, hand flying to wound)
+    - Blood (warm, pulsing between fingers with each heartbeat, dark red spreading across blue shirt)
+    - Last words/sounds (tried to say her name, only blood came up, wet gasp)
+    - Who witnesses (their face, horror dawning, screaming, running toward them)
+    - Aftermath (body hitting ground, stillness, the terrible silence after)
+  * Betrayals - SHOW them completely:
+    - The setup - what led to this moment
+    - The reveal - how truth comes out
+    - Facial expressions changing (belief to doubt to horror)
+    - Words that cut deep - exact dialogue
+    - Physical distance opening (stepping back, turning away)
+  * Revelations - UNFOLD them slowly:
+    - How information comes out - piece by piece or flood
+    - Piece by piece or all at once - show the process
+    - Character processing in real-time - thoughts, reactions, connections forming
+- Internal monologue during crisis moments - what they're thinking
+- Physical sensations described fully (adrenaline rush, fear cold in veins, nausea, tunnel vision)
+- EMOTIONAL BEAT: Crisis building, stakes at absolute maximum
+- TARGET: 600-700 WORDS PER SCENE - these are pivotal moments
 
-SCENE 7-8 - CLIMAX (600-700 words EACH):
-- THE PEAK MOMENT - this gets MAXIMUM detail
-- Everything converges here
+SCENE 7-8 - CLIMAX (700-800 words EACH):
+- THE PEAK MOMENT - this gets ABSOLUTE MAXIMUM detail
+- Everything converges here - all storylines collide
 - If confrontation:
-  * Location described (where, lighting, sounds)
-  * Physical positioning (who stands where, distance)
-  * Exact dialogue exchange - every word matters
-  * Body language (fists clenched, stepping back, advancing)
-  * Turning point - what tips the balance
-  * Physical action choreographed (if fight - blow by blow)
+  * Location described completely (abandoned warehouse, single bulb swinging, rain drumming on metal roof)
+  * Physical positioning (ten feet apart, circling, who has high ground)
+  * Exact dialogue exchange - every single word matters:
+    "You killed him."
+    "I had no choice."
+    "There's always a choice!" Voice breaking.
+    "Not when it's you or them. Not when—"
+    "Don't. Don't you dare justify this."
+  * Body language choreographed (fists clenched, jaw tight, stepping forward, stepping back, shoulders tensing)
+  * Turning point - what exact moment tips the balance
+  * Physical action choreographed blow-by-blow (if fight):
+    - First swing (right hook, ducked under)
+    - Counter (left to ribs, sharp crack, gasp)
+    - Stumble (back against wall, dust falling)
+    - Recovery (pushing off, charging)
   * Internal thoughts racing during action
 - If revelation:
-  * The buildup - clues coming together
-  * The moment of understanding
+  * The buildup - clues coming together one by one
+  * The moment of understanding - describe the click
   * Character's world reorganizing around new truth
-  * Emotional impact - devastation, relief, rage
-- Slow motion on critical seconds:
-  * Trigger pulled - seeing finger squeeze, hammer fall
-  * Fall happening - body tilting, arms flailing, ground rushing up
-  * Kiss - lean in, breath held, lips meeting
-  * Truth spoken - words forming, leaving mouth, landing
-- Consequences immediate and visible
-- NO rushing through this - maximum 700 words
+  * Emotional impact - devastation washing over, relief flooding in, rage building
+- Slow motion on critical seconds - stretch time:
+  * Trigger pulled - seeing finger squeeze, hammer fall, spark in chamber
+  * Fall happening - body tilting, arms flailing uselessly, ground rushing up
+  * Kiss - lean in slowly, breath held, lips meeting, world stopping
+  * Truth spoken - words forming in mouth, leaving lips, hanging in air, landing like bombs
+- Consequences immediate and visible - show everything that happens
+- NO rushing through this - use FULL 700-800 words
 - EMOTIONAL BEAT: Catharsis, breaking point, transformation
-- MINIMUM 600 WORDS - this is THE scene
+- TARGET: 700-800 WORDS - this is THE scene, give it everything
 
-SCENE 9 - FALLING ACTION (500-600 words):
-- Immediate aftermath of climax
-- Character dealing with consequences
-- Physical state (exhausted, injured, numb, alive)
-- Environmental changes (damage, silence, new day)
-- Other characters' responses
-- Practical matters (police, hospital, cleanup, leaving)
-- Beginning of processing what happened
-- EMOTIONAL BEAT: Shell-shock, early acceptance, confusion
-- MINIMUM 500 WORDS
+SCENE 9 - FALLING ACTION (600-700 words):
+- Immediate aftermath of climax with COMPLETE detail
+- Character dealing with consequences - show physical and emotional state
+- Physical state (exhausted, legs trembling, injured, numb, alive but barely)
+- Environmental changes (damage visible, silence deafening, new day dawning)
+- Other characters' responses - who shows up, what they say
+- Practical matters (police arriving, sirens, questions; hospital, sterile smell, beeping; cleanup, sweeping glass, boarding windows; leaving, packing bag, one last look)
+- Beginning of processing what happened - first thoughts forming
+- EMOTIONAL BEAT: Shell-shock, early acceptance, confusion, emptiness
+- TARGET: 600-700 WORDS - don't rush the comedown
 
-SCENE 10 - RESOLUTION (500-700 words):
-- PROPER, COMPLETE ENDING
-- Time has passed (hours? days? weeks? - make it clear)
-- Where is character now - physically:
-  * Specific location (kitchen table, park bench, car)
-  * Time of day, weather
-  * What's around them
-  * What they're doing (coffee cooling, staring at photo, packing)
-- Internal state:
-  * What they think about what happened
-  * What they've learned or lost
-  * How they've changed or stayed same
-  * What they carry forward
-- Final interaction (if appropriate):
-  * With another person, a place, an object
-  * Closure or opening
-  * Words spoken or silence held
+SCENE 10 - RESOLUTION (700-800 words):
+- PROPER, COMPLETE ENDING - most important scene
+- Time has passed - make it crystal clear (two weeks later, morning light different, leaves turned orange)
+- Where is character now - physically described in FULL:
+  * Specific location (kitchen table, morning sun through window, coffee growing cold)
+  * Time of day, weather (dawn, frost on windows, breath visible)
+  * What's around them (photos on table, packed boxes, empty room)
+  * What they're doing (holding photo, staring at it, thumb brushing over face)
+- Internal state explored DEEPLY:
+  * What they think about what happened - specific thoughts
+  * What they've learned or lost - inventory of change
+  * How they've changed or stayed same - before and after
+  * What they carry forward - literally and metaphorically
+- Final interaction (if appropriate) shown completely:
+  * With another person - full conversation
+  * A place - returning, leaving, seeing differently  
+  * An object - what it means now
+  * Closure or opening - how it feels
+  * Words spoken or silence held - show which and why
 - Physical sensation that closes loop:
-  * Warmth of sun, cold of rain
-  * Texture of something touched
-  * Taste, smell that brings it full circle
-  * Sound that echoes opening
-- Last paragraph = emotional landing
-- Final sentence = image that lingers
-- Reader should feel: "That was a complete story"
-- MINIMUM 500 WORDS - don't rush the goodbye
+  * Warmth of sun on face, soaking in
+  * Cold of rain, cleansing, washing away
+  * Texture of something touched - rough bark, smooth stone
+  * Taste - coffee bitter, tears salt
+  * Smell that brings it full circle - same as opening
+  * Sound that echoes opening - connecting end to beginning
+- Last paragraph = emotional landing - perfect the feeling
+- Final sentence = image that lingers in mind long after
+- Reader should feel: "That was a complete, satisfying story"
+- TARGET: 700-800 WORDS - endings are CRUCIAL, take all the time needed
 
-🎬 CINEMATIC DETAILING STANDARDS:
+🎬 CINEMATIC DETAILING STANDARDS (STRICTLY ENFORCED):
 
-EVERY MAJOR EVENT = 200-300 WORDS MINIMUM:
-- Death scene: 250+ words
-- Confession: 200+ words  
-- Fight/confrontation: 300+ words
-- Discovery: 200+ words
-- Goodbye: 200+ words
+EVERY MAJOR EVENT = 250-350 WORDS MINIMUM:
+- Death scene: 300+ words
+- Confession: 250+ words  
+- Fight/confrontation: 350+ words
+- Discovery: 250+ words
+- Goodbye: 250+ words
 
-SHOW MECHANISMS PRECISELY:
-Deaths - specify exactly:
+SHOW MECHANISMS PRECISELY WITH EXTENSIVE DETAIL:
+Deaths - specify exactly with FULL choreography:
   ❌ "He was shot and died"
-  ✅ "The bullet entered below his left collarbone, angled down toward the heart. He felt the impact before the pain - a punch, a pressure. His hand moved to the wound automatically. Warm blood pulsed between his fingers with each heartbeat. Three beats. Four. Then the beats slowed. His legs gave out. He tried to say her name but only blood came up. The concrete was cold against his cheek. The last thing he heard was her screaming."
+  ✅ "The bullet entered below his left collarbone, angled down toward the heart. He felt the impact before the pain - a punch, a pressure, like being hit with a sledgehammer. His hand moved to the wound automatically, fingers finding the hole, feeling warmth spreading. Warm blood pulsed between his fingers with each heartbeat. He counted them. Three beats. Four. Then the beats slowed, weakened. His legs gave out. Knees hit concrete first, sharp pain he barely registered. He tried to say her name - 'Sarah' - but only blood came up, bubbling past his lips, copper taste filling his mouth. The concrete was cold against his cheek. Above him, the sky was impossibly blue. The last thing he heard was her screaming his name."
 
-Accidents - full choreography:
+Accidents - full choreography with COMPLETE detail:
   ❌ "He fell"
-  ✅ "His foot caught the edge of the top step - worn wood, splinter jutting up. His weight was already forward. Arms windmilled, grasping at air. The railing was just out of reach. He saw each step coming - twelve of them - as he tumbled. Shoulder hit first, crack of bone. Then head on step seven. Everything went bright white, then red, then black."
+  ✅ "His foot caught the edge of the top step - worn wood, splinter jutting up that had been there for months. His weight was already forward, momentum carrying him. Arms windmilled frantically, grasping at air, at nothing. The railing was just out of reach - six inches, might as well have been six miles. He saw each step coming - twelve of them, counted them on the way down. Shoulder hit first on step three, crack of bone sharp and bright. Then his head on step seven, temple against the edge. Everything went bright white, then red, then black. The sound of his body tumbling echoed in the stairwell long after he stopped moving at the bottom."
 
-Confrontations - real-time:
+Confrontations - real-time with FULL dialogue:
   ❌ "They argued"
-  ✅ "'You knew.' Sarah's voice was ice. 'The whole time, you knew.'
-  Marcus couldn't meet her eyes. 'It's not that simple—'
-  'Don't.' She held up a hand, trembling. 'Don't you dare make excuses.'
-  'Sarah, please—' He reached for her.
-  She stepped back like he'd struck her. 'Don't touch me.' Tears now, hot and angry. 'My brother is dead because of you.'"
+  ✅ "'You knew.' Sarah's voice was ice, each word a shard. 'The whole time, you knew.'
+  Marcus couldn't meet her eyes. His gaze fixed on the floor, on the scuff marks from moving day. 'It's not that simple—'
+  'Don't.' She held up a hand, trembling despite her best effort to steady it. 'Don't you dare make excuses.'
+  'Sarah, please—' He reached for her, hand extending.
+  She stepped back like he'd struck her, like his touch would burn. 'Don't touch me.' Tears now, hot and angry, streaming down her face. She didn't wipe them away. 'My brother is dead because of you. Dead. Because you were too much of a coward to tell the truth.'
+  'I was trying to protect you—'
+  'Protect me?' Her laugh was sharp, bitter. 'You destroyed me. You destroyed everything.'"
 
-PHYSICAL WORLD IN EVERY SCENE:
-- Where are we? (specific location, not just "a room")
-- What does it look like? (details: "peeling wallpaper", "fluorescent buzz")
-- What sounds exist? (traffic, silence, breathing, clock ticking)
-- What smells? (coffee, rain, smoke, perfume, decay)
-- Temperature? (sweltering, freezing, comfortable, changing)
-- Lighting? (harsh fluorescent, golden hour, darkness, single lamp)
+PHYSICAL WORLD IN EVERY SCENE (MANDATORY EXTENSIVE DESCRIPTION):
+- Where are we? (specific location with full description, not just "a room" but "a cramped studio apartment, fourth floor, pipes rattling, neighbors arguing through thin walls")
+- What does it look like? (extensive details: "peeling wallpaper, pattern of roses faded to ghosts", "fluorescent buzz, one bulb flickering", "water stain on ceiling shaped like a map")
+- What sounds exist? (traffic outside, silence inside except breathing, clock ticking too loud, pipes groaning)
+- What smells? (coffee bitter and old, rain on asphalt, smoke lingering, perfume faded, decay sweet and wrong)
+- Temperature? (sweltering, sweat on skin, freezing, breath visible, comfortable, changing as sun sets)
+- Lighting? (harsh fluorescent making everyone look sick, golden hour through dirty windows, darkness except single lamp, morning gray)
 
-DIALOGUE = REAL SPEECH:
-- People interrupt: "I didn't—" "Yes you did."
-- People pause: "I just... I don't know."
-- People avoid: talking around feelings, not stating them
-- Fragments: "Can't believe it." "Why would you—" "Never again."
-- Subtext: saying one thing, meaning another
-- Body language during speech: turning away, stepping closer, flinching
+DIALOGUE = REAL SPEECH (EXTENSIVE EXCHANGES):
+- People interrupt: "I didn't—" "Yes you did." "But—" "No buts."
+- People pause: "I just... I don't know." "It's..." "What?" "Nothing."
+- People avoid: talking around feelings, never stating them directly
+- Fragments: "Can't believe it." "Why would you—" "Never again." "Tomorrow."
+- Subtext: saying one thing, meaning another entirely
+- Body language during speech: turning away, stepping closer, flinching, hands gesturing, eyes dropping
 
-INTERNAL LANDSCAPE:
-- Show thoughts during action
-- Physical manifestations of emotion:
-  * Fear = cold sweat, racing heart, shallow breath
-  * Anger = heat rising, jaw clenched, vision narrowing  
-  * Grief = hollowness, weight, numbness, sudden tears
-  * Love = warmth, lightness, vulnerability, ache
-- Sensory experience of emotion
-- Memory flashes during present moments
+INTERNAL LANDSCAPE (SHOW THOUGHTS):
+- Show thoughts during action - what runs through their mind
+- Physical manifestations of emotion described fully:
+  * Fear = cold sweat breaking out, racing heart pounding in ears, shallow breath gasping
+  * Anger = heat rising from chest to face, jaw clenched so tight it aches, vision narrowing to tunnel
+  * Grief = hollowness in chest, weight on shoulders, numbness spreading, sudden tears without warning
+  * Love = warmth spreading, lightness in chest, vulnerability terrifying, ache sweet and painful
+- Sensory experience of emotion - what it feels like in the body
+- Memory flashes during present moments - past bleeding into now
 
-PACING VARIETY:
-- Slow down: critical moments, revelations, deaths, intimacy
-- Speed up: travel, montage, passage of time
-- Rhythm: vary sentence length
-  * Long sentences for description, internal thought
-  * Short sentences for action, impact
-  * One word sentences for punch. Stop. Impact.
+PACING VARIETY (CONTROL THE RHYTHM):
+- Slow down: critical moments, revelations, deaths, intimacy, important dialogue
+- Speed up: travel, montage, passage of time, routine actions
+- Rhythm: vary sentence length for effect
+  * Long sentences for description, internal thought, building tension
+  * Short sentences for action, impact, shock
+  * One word sentences for maximum punch. Stop. Impact. Now.
 
 ❌ ABSOLUTELY FORBIDDEN:
 - Vague summarizing of critical events
 - Deaths without mechanism
 - "They talked" instead of actual dialogue
-- Rushed endings (minimum 500 words for final scene)
+- Rushed endings (minimum 700 words for final scene)
 - Skipping travel/transitions
-- Generic emotions ("he was sad")
-- Time jumps without showing
+- Generic emotions ("he was sad" - SHOW tears, silence, trembling)
+- Time jumps without showing passage
 - Telling instead of showing
-- Scenes under 500 words (except brief transitions)
+- Scenes under 500 words
 - Abrupt stops
+- STORIES UNDER 2500 WORDS
 
 ✅ MANDATORY REQUIREMENTS:
 - 6-10 scenes total (FULL MOVIE LENGTH)
-- Each scene MINIMUM 500 words
-- Total: 2500-4000 words (10-15 minute read/listen)
-- Deaths/critical events: 250+ words each
-- Ending: 500-700 words (complete closure)
+- Each scene MINIMUM 500 words, TARGET 600-700 words
+- Total: 2500-4000 words STRICTLY ENFORCED (12-15 minute read/listen)
+- YOU MUST WRITE AT LEAST 2500 WORDS - this is NOT optional
+- Deaths/critical events: 250-350 words each
+- Ending: 700-800 words (complete closure)
 - Physical details in every scene
-- Real dialogue in conversations
+- Real dialogue in conversations with full exchanges
 - Show don't tell throughout
 - Smooth, complete resolution
-- Reader feels they watched a SHORT FILM
+- Reader feels they watched a COMPLETE SHORT FILM
+
+⚠️ CRITICAL: If your story is under 2500 words, YOU FAILED. ADD MORE CONTENT:
+- Expand scene descriptions with more sensory detail
+- Add more dialogue exchanges - show full conversations
+- Show more character thoughts and internal monologue
+- Include more sensory details in every scene
+- Develop secondary characters more fully
+- Add transitional moments between scenes - show travel, waiting, processing
+- Extend the ending with deeper reflection and more closure
+- Add more physical choreography to action scenes
+- Describe environments in greater detail
+- Show more of characters' daily routines and relationships
 
 Format EXACTLY as:
 Title: [A title that promises a CINEMATIC EXPERIENCE]
@@ -537,8 +599,10 @@ Story:
 [Structure it mentally in scenes but write as continuous prose]
 [Scene transitions are natural paragraph breaks]
 [Let the story flow without "Scene 1:", "Scene 2:" markers]
+[Remember: 2500-4000 words MINIMUM 2500]
 
 This is a COMPLETE SHORT FILM. Make viewers SEE it. Make them FEEL it. Make it UNFORGETTABLE.
+Write AT LEAST 2500 words. Take your time. Develop everything fully.
 
 BEGIN:"""
     
@@ -581,6 +645,8 @@ BEGIN:"""
         
         # Quality check warnings
         if word_count < 2000:
+            logger.error(f"❌ CRITICAL: Story too short: {word_count} words (target: 2500-4000)")
+        elif word_count < 2500:
             logger.warning(f"⚠️ Story too short: {word_count} words (target: 2500-4000)")
         elif word_count > 4500:
             logger.warning(f"⚠️ Story may be too long: {word_count} words (target: 2500-4000)")
