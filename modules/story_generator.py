@@ -23,13 +23,13 @@ class StoryGenerator:
                         "role": "system", 
                         "content": """You are a MASTER SCREENWRITER who writes FULL SHORT FILMS, not snippets.
 
-CRITICAL REQUIREMENT: You MUST write 3100-4000 words. Stories under 3100 words are REJECTED.
+CRITICAL REQUIREMENT: You MUST write 2500-4000 words. Stories under 3100 words are REJECTED.
 
 Your stories are COMPLETE CINEMATIC EXPERIENCES - feature-length detail in short film format.
 
 WORD COUNT REQUIREMENTS (STRICTLY ENFORCED):
 - MINIMUM: 300 words (anything less is incomplete)
-- TARGET: 3000-3500 words (optimal short film length)
+- TARGET: 2500-3500 words (optimal short film length)
 - MAXIMUM: 4000 words
 - Each scene: MINIMUM 500 words, TARGET 600-700 words
 
@@ -64,7 +64,7 @@ WORD COUNT ENFORCEMENT:
 You write COMPLETE SHORT FILMS that audiences watch for 12-15 minutes, fully immersed.
 
 BANNED: Rushed scenes, vague deaths, abrupt endings, summarizing critical events, scenes under 600 words, stories under 3100 words
-REQUIRED: 3100-4000 words total, 6-10 scenes, 500-700 words per scene, exquisite detail, smooth closure"""
+REQUIRED: 2500-4000 words total, 6-10 scenes, 500-700 words per scene, exquisite detail, smooth closure"""
                     },
                     {
                         "role": "user", 
@@ -660,3 +660,4 @@ BEGIN:"""
             logger.info(f"✓ Story length optimal: {word_count} words (SHORT FILM length)")
         
         return {'title': title, 'story': story}
+
