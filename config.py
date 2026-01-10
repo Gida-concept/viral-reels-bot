@@ -36,13 +36,17 @@ class Config:
     DATA_DIR = 'data'
     STATE_FILE = os.path.join(DATA_DIR, 'state.json')
     
+    # Episode Settings
+    EPISODE_GAP_MINUTES = 15  # Wait time between episodes (15 minutes)
+    TARGET_WORDS_PER_EPISODE = 350  # ~2 minutes per episode at 175 words/min
+    
     # Settings
     VOICE_VOLUME_BOOST = 1.3
     MUSIC_VOLUME = 0.20
     OUTPUT_RESOLUTION = (360, 640)
     SUBTITLE_FONT_SIZE = 20
     TTS_VOICE = 'en-US-AndrewNeural'
-    RUN_INTERVAL_HOURS = 3
+    RUN_INTERVAL_HOURS = 3  # Time between complete story runs
     
     @classmethod
     def validate(cls):
@@ -63,6 +67,9 @@ class Config:
         if cls.MUSIC_VOLUME < 0.05 or cls.MUSIC_VOLUME > 0.5:
             logger.warning(f"Music volume {cls.MUSIC_VOLUME} may be too quiet/loud")
         
+        if cls.EPISODE_GAP_MINUTES < 5 or cls.EPISODE_GAP_MINUTES > 60:
+            logger.warning(f"Episode gap of {cls.EPISODE_GAP_MINUTES} minutes may be too short/long")
+        
         # Create directories
         os.makedirs(cls.TEMP_DIR, exist_ok=True)
         os.makedirs(cls.DATA_DIR, exist_ok=True)
@@ -71,4 +78,5 @@ class Config:
         logger.info(f"  Videos: {len(cls.VIDEO_URLS)} URLs")
         logger.info(f"  Categories: {len(cls.CATEGORIES)}")
         logger.info(f"  Subtitle size: {cls.SUBTITLE_FONT_SIZE}px")
-
+        logger.info(f"  Episode gap: {cls.EPISODE_GAP_MINUTES} minutes")
+        logger.info(f"  Target per episode: ~{cls.TARGET_WORDS_PER_EPISODE} words (~2 min)")
