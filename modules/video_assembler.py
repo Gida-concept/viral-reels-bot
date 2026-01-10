@@ -9,7 +9,7 @@ class VideoAssembler:
         self.config = config
     
     def assemble_video(self, video_path, audio_path, music_path, subtitle_path, output_path, title=""):
-        logger.info("Assembling video with static title caption")
+        logger.info("Assembling video with Whisper-synced subtitles + static title")
         
         audio_duration = self._get_duration(audio_path)
         video_duration = self._get_duration(video_path)
@@ -19,21 +19,28 @@ class VideoAssembler:
         
         width, height = self.config.OUTPUT_RESOLUTION
         
-        # Escape title for FFmpeg drawtext (handle special characters)
+        # Escape paths and text for FFmpeg
+        subtitle_path_escaped = subtitle_path.replace('\\', '/').replace(':', '\\:')
         title_escaped = title.replace("'", "\\'").replace(":", "\\:").replace("%", "\\%").replace(",", "\\,")
         
         # Check if music has audio
         has_music_audio = self._has_audio_stream(music_path)
         
         if has_music_audio:
-            # WITH MUSIC - Static title caption instead of subtitles
+            # WITH MUSIC - Whisper subtitles + title caption
             filter_complex = (
                 # Scale and crop video
                 f"[0:v]scale={width}:{height}:force_original_aspect_ratio=increase,"
                 f"crop={width}:{height}[v_crop];"
                 
-                # Add static title caption (stays throughout video)
-                f"[v_crop]drawtext="
+                # Add Whisper-synced subtitles (middle of screen)
+                f"[v_crop]subtitles={subtitle_path_escaped}:"
+                f"force_style='FontName=Arial,FontSize={self.config.SUBTITLE_FONT_SIZE},"
+                f"Bold=1,PrimaryColour=&H00FFFFFF,OutlineColour=&H00000000,"
+                f"BackColour=&H80000000,Outline=2,Shadow=1,MarginV=80,Alignment=2'[v_sub];"
+                
+                # Add static title caption at bottom
+                f"[v_sub]drawtext="
                 f"text='{title_escaped}':"
                 f"fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf:"
                 f"fontsize={self.config.SUBTITLE_FONT_SIZE}:"
@@ -55,7 +62,7 @@ class VideoAssembler:
             
             cmd = [
                 'ffmpeg', '-y',
-                '-stream_loop', '-1',  # Loop video input
+                '-stream_loop', '-1',
                 '-i', video_path,
                 '-i', audio_path,
                 '-i', music_path,
@@ -74,15 +81,21 @@ class VideoAssembler:
                 output_path
             ]
         else:
-            # WITHOUT MUSIC - Static title caption instead of subtitles
+            # WITHOUT MUSIC - Whisper subtitles + title caption
             logger.warning("Music has no audio, using voice only")
             filter_complex = (
                 # Scale and crop video
                 f"[0:v]scale={width}:{height}:force_original_aspect_ratio=increase,"
                 f"crop={width}:{height}[v_crop];"
                 
-                # Add static title caption (stays throughout video)
-                f"[v_crop]drawtext="
+                # Add Whisper-synced subtitles (middle of screen)
+                f"[v_crop]subtitles={subtitle_path_escaped}:"
+                f"force_style='FontName=Arial,FontSize={self.config.SUBTITLE_FONT_SIZE},"
+                f"Bold=1,PrimaryColour=&H00FFFFFF,OutlineColour=&H00000000,"
+                f"BackColour=&H80000000,Outline=2,Shadow=1,MarginV=80,Alignment=2'[v_sub];"
+                
+                # Add static title caption at bottom
+                f"[v_sub]drawtext="
                 f"text='{title_escaped}':"
                 f"fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf:"
                 f"fontsize={self.config.SUBTITLE_FONT_SIZE}:"
@@ -98,7 +111,7 @@ class VideoAssembler:
             
             cmd = [
                 'ffmpeg', '-y',
-                '-stream_loop', '-1',  # Loop video input
+                '-stream_loop', '-1',
                 '-i', video_path,
                 '-i', audio_path,
                 '-filter_complex', filter_complex,
@@ -117,14 +130,13 @@ class VideoAssembler:
             ]
         
         try:
-            logger.info("Running FFmpeg with static title caption...")
+            logger.info("Running FFmpeg with Whisper subtitles + title...")
             result = subprocess.run(cmd, capture_output=True, text=True, check=True)
             
             # Verify output
             output_duration = self._get_duration(output_path)
             logger.info(f"✓ Output duration: {output_duration:.2f}s (expected: {audio_duration:.2f}s)")
             
-            # Check if duration matches (within 1 second tolerance)
             if abs(output_duration - audio_duration) > 1.0:
                 logger.warning(f"Duration mismatch! Expected {audio_duration:.2f}s, got {output_duration:.2f}s")
             
