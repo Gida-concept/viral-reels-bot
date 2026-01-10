@@ -9,7 +9,90 @@ class FacebookUploader:
         self.page_id = page_id
         self.graph_url = "https://graph.facebook.com/v18.0"
     
+    def upload_episode(self, video_path: str, episode: dict, caption_parts: dict, hashtags: list):
+        """
+        Upload an episode with episode-specific caption
+        
+        Args:
+            video_path: Path to video file
+            episode: Episode dictionary with metadata
+            caption_parts: Caption components from episode_splitter
+            hashtags: Base category hashtags
+        """
+        ep_num = episode['episode_number']
+        total = episode['total_episodes']
+        
+        logger.info(f"Uploading Episode {ep_num}/{total}: {episode['title']}")
+        
+        try:
+            # Generate trending hashtags
+            all_hashtags = self._generate_trending_hashtags(hashtags)
+            
+            # Build episode caption
+            caption = self._build_episode_caption(caption_parts, all_hashtags)
+            
+            logger.info(f"Caption:\n{caption}")
+            
+            # Direct video upload
+            upload_url = f"{self.graph_url}/{self.page_id}/videos"
+            
+            with open(video_path, 'rb') as video_file:
+                files = {'source': video_file}
+                data = {
+                    'access_token': self.access_token,
+                    'description': caption,
+                    'title': episode['title'],
+                }
+                
+                response = requests.post(upload_url, files=files, data=data, timeout=600)
+                response.raise_for_status()
+                result = response.json()
+            
+            video_id = result.get('id')
+            logger.info(f"Upload complete! Video ID: {video_id}")
+            return {'success': True, 'video_id': video_id}
+            
+        except requests.exceptions.HTTPError as e:
+            logger.error(f"Upload error: {e}")
+            if hasattr(e.response, 'text'):
+                logger.error(f"Response: {e.response.text}")
+            
+            try:
+                error_data = e.response.json()
+                logger.error(f"Error details: {error_data}")
+            except:
+                pass
+            
+            raise
+        except Exception as e:
+            logger.error(f"Upload error: {e}")
+            raise
+    
+    def _build_episode_caption(self, caption_parts: dict, hashtags: list):
+        """Build caption for episode"""
+        parts = []
+        
+        # Title line (includes emoji and episode info)
+        parts.append(caption_parts['title_line'])
+        
+        # Part indicator
+        parts.append(caption_parts['part_indicator'])
+        
+        # Next episode info (if exists)
+        if caption_parts['next_info']:
+            parts.append(caption_parts['next_info'])
+        
+        # Blank line before hashtags
+        parts.append('')
+        
+        # Hashtags
+        hashtag_line = " ".join([f"#{tag}" for tag in hashtags])
+        parts.append(hashtag_line)
+        
+        return '\n'.join(parts)
+    
     def upload_reel(self, video_path: str, title: str, hashtags: list, story: str = None):
+        """Legacy method for backward compatibility"""
         logger.info(f"Uploading to Facebook: {title}")
         try:
             # Generate trending hashtags
