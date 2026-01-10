@@ -14,7 +14,7 @@ class StoryGenerator:
         logger.info(f"Generating BULLETPROOF CINEMATIC story for: {category}")
         
         opening_style = self._get_unique_opening_style()
-        prompt = self._create_bulletproof_prompt(category, opening_style)
+        prompt = self._create_cinematic_prompt(category, opening_style)
         
         try:
             response = self.client.chat.completions.create(
