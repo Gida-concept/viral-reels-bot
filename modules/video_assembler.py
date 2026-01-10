@@ -8,6 +8,20 @@ class VideoAssembler:
     def __init__(self, config):
         self.config = config
     
+    def _escape_ffmpeg_text(self, text: str) -> str:
+        """
+        Properly escape text for FFmpeg drawtext filter
+        FFmpeg drawtext is VERY sensitive to special characters
+        """
+        # Order matters! Do backslash first
+        text = text.replace('\\', '\\\\')  # Backslash
+        text = text.replace("'", "\\'")    # Single quote/apostrophe
+        text = text.replace(':', '\\:')    # Colon
+        text = text.replace('%', '\\%')    # Percent
+        text = text.replace('[', '\\[')    # Left bracket
+        text = text.replace(']', '\\]')    # Right bracket
+        return text
+    
     def assemble_video(self, video_path, audio_path, music_path, subtitle_path, output_path, title=""):
         logger.info("Assembling video with Whisper-synced subtitles + static title")
         
@@ -19,9 +33,14 @@ class VideoAssembler:
         
         width, height = self.config.OUTPUT_RESOLUTION
         
-        # Escape paths and text for FFmpeg
+        # Escape paths for subtitles (different escaping rules)
         subtitle_path_escaped = subtitle_path.replace('\\', '/').replace(':', '\\:')
-        title_escaped = title.replace("'", "\\'").replace(":", "\\:").replace("%", "\\%").replace(",", "\\,")
+        
+        # Escape title text for drawtext filter (strict escaping)
+        title_escaped = self._escape_ffmpeg_text(title)
+        
+        logger.debug(f"Original title: {title}")
+        logger.debug(f"Escaped title: {title_escaped}")
         
         # Check if music has audio
         has_music_audio = self._has_audio_stream(music_path)
