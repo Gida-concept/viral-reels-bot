@@ -24,7 +24,7 @@ class ViralReelsBot:
         self.state_manager = StateManager(Config.STATE_FILE)
         self.story_generator = StoryGenerator(Config.GROQ_API_KEY)
         self.voice_generator = VoiceGenerator(Config.TTS_VOICE)
-        self.subtitle_generator = SubtitleGenerator()
+        self.subtitle_generator = SubtitleGenerator(Config.GROQ_API_KEY)  # Pass API key
         self.video_manager = VideoManager(Config.VIDEO_URLS)
         self.music_downloader = MusicDownloader(Config.PIXABAY_API_KEY, Config.FALLBACK_MUSIC_URL)
         self.video_assembler = VideoAssembler(Config)
@@ -42,7 +42,7 @@ class ViralReelsBot:
             logger.info(f"[1/8] Category: {category}")
             
             # Step 2: Generate story
-            logger.info(f"[2/8] Generating story...")
+            logger.info(f"[2/8] Generating cinematic short film...")
             story_data = self.story_generator.generate_story(category)
             title = story_data['title']
             story = story_data['story']
@@ -58,8 +58,8 @@ class ViralReelsBot:
             logger.info(f"[3/8] Generating voice narration...")
             self.voice_generator.generate_voice(story, audio_path)
             
-            # Step 4: Generate subtitles (kept for potential future use)
-            logger.info(f"[4/8] Generating subtitles...")
+            # Step 4: Generate Whisper subtitles
+            logger.info(f"[4/8] Generating Whisper-synced subtitles...")
             self.subtitle_generator.generate_subtitles(audio_path, subtitle_path, story)
             
             # Step 5: Download video
@@ -71,8 +71,8 @@ class ViralReelsBot:
             logger.info(f"[6/8] Downloading background music...")
             self.music_downloader.download_music(music_path)
             
-            # Step 7: Assemble video with static title caption
-            logger.info(f"[7/8] Assembling video...")
+            # Step 7: Assemble video with Whisper subtitles
+            logger.info(f"[7/8] Assembling cinematic video...")
             self.video_assembler.assemble_video(video_path, audio_path, music_path, subtitle_path, output_path, title)
             
             # Step 8: Upload to Facebook
@@ -92,7 +92,7 @@ class ViralReelsBot:
             logger.info(f"  Total Runs: {self.state_manager.state['total_runs']}")
             logger.info(f"{'='*60}\n")
             
-            # Cleanup ALL temp files including final output to save space
+            # Cleanup ALL temp files
             self._cleanup_temp_files([audio_path, video_path, music_path, subtitle_path, output_path])
             logger.info("✓ All temp files deleted to preserve space")
             
@@ -102,12 +102,9 @@ class ViralReelsBot:
             logger.error(f"Error: {str(e)}")
             logger.error(f"{'!'*60}\n")
             
-            # Print full traceback for debugging
             import traceback
             logger.error("Full error traceback:")
             logger.error(traceback.format_exc())
-            
-            # Don't raise - let bot continue running
     
     def _cleanup_temp_files(self, files: list):
         """Clean up temporary files after successful upload"""
