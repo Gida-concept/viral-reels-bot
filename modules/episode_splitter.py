@@ -29,8 +29,13 @@ class EpisodeSplitter:
         Returns:
             List of episode dictionaries with story text and metadata
         """
-        # Split story into paragraphs
+        # First try splitting by double newlines (paragraphs)
         paragraphs = [p.strip() for p in story.split('\n\n') if p.strip()]
+        
+        # If story is one giant paragraph, split by single newlines
+        if len(paragraphs) == 1:
+            logger.warning("Story is one paragraph, splitting by sentences instead")
+            paragraphs = self._split_by_sentences(story)
         
         logger.info(f"Story has {len(paragraphs)} paragraphs")
         
@@ -122,3 +127,29 @@ class EpisodeSplitter:
             'part_indicator': part_indicator,
             'next_info': next_info
         }
+    
+    def _split_by_sentences(self, text: str):
+        """Split text into sentence-based chunks when no paragraph breaks exist"""
+        import re
+        
+        # Split by sentence endings
+        sentences = re.split(r'(?<=[.!?])\s+', text)
+        
+        # Group sentences into paragraph-sized chunks (3-5 sentences each)
+        chunks = []
+        current_chunk = []
+        
+        for sentence in sentences:
+            current_chunk.append(sentence)
+            
+            # Create chunks of 3-5 sentences
+            if len(current_chunk) >= 4:
+                chunks.append(' '.join(current_chunk))
+                current_chunk = []
+        
+        # Add remaining sentences
+        if current_chunk:
+            chunks.append(' '.join(current_chunk))
+        
+        logger.info(f"Split wall of text into {len(chunks)} sentence-based chunks")
+        return chunks
