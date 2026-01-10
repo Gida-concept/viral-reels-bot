@@ -71,10 +71,10 @@ REQUIRED: 2500-4000 words total, 6-10 scenes, 500-700 words per scene, exquisite
                     }
                 ],
                 model=self.model,
-                temperature=1.4,  # Increased for more verbose output
-                max_tokens=8000,  # Increased for FULL short films
+                temperature=2,  # Increased for more verbose output
+                max_tokens=9500,  # Increased for FULL short films
                 top_p=0.95,
-                presence_penalty=0.6,  # Higher to encourage more content
+                presence_penalty=0.9,  # Higher to encourage more content
                 frequency_penalty=0.2   # Lower to allow detailed descriptions
             )
             
@@ -659,4 +659,5 @@ BEGIN:"""
             logger.info(f"✓ Story length optimal: {word_count} words (SHORT FILM length)")
         
         return {'title': title, 'story': story}
+
 
