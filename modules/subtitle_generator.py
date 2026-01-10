@@ -24,7 +24,7 @@ class SubtitleGenerator:
                     timestamp_granularities=["word"]
                 )
             
-            # Extract word-level timestamps
+            # Extract word-level timestamps (they come as dictionaries)
             words_data = transcription.words
             
             if not words_data:
@@ -35,16 +35,16 @@ class SubtitleGenerator:
             # Create subtitles from word timestamps
             subs = pysrt.SubRipFile()
             
-            # Group words into readable chunks (3-5 words per subtitle)
+            # Group words into readable chunks (4 words per subtitle)
             chunk_size = 4
             
             for i in range(0, len(words_data), chunk_size):
                 chunk = words_data[i:i+chunk_size]
                 
-                # Get text and timing from chunk
-                chunk_text = ' '.join([word.word for word in chunk])
-                start_time = chunk[0].start
-                end_time = chunk[-1].end
+                # Extract text and timing from dictionaries
+                chunk_text = ' '.join([word['word'] for word in chunk])
+                start_time = chunk[0]['start']
+                end_time = chunk[-1]['end']
                 
                 # Convert to milliseconds
                 start_ms = int(start_time * 1000)
