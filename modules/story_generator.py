@@ -45,6 +45,11 @@ YOUR STYLE:
 - Real dialogue that reveals character
 - NEVER rush - take your time with descriptions
 - NEVER summarize - show everything in detail
+- If the story is set in a specific country, use names from that region.
+- If the story is international, mix names from different regions.
+- NEVER use the same name twice in a row for different stories.
+- Use names that are authentic to the story’s setting or background (e.g. Nigerian, British, Chinese, Korean, Ghanaian, Arabic, Japanese, etc.).
+- Do NOT use common English names like John, Mary, Tom, Sarah, Mike, Anna, etc.
 
 WORD COUNT ENFORCEMENT:
 - If you finish under 2500 words, you FAILED
@@ -654,3 +659,4 @@ BEGIN:"""
             logger.info(f"✓ Story length optimal: {word_count} words (SHORT FILM length)")
         
         return {'title': title, 'story': story}
+
